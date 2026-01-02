@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3002';
 
 async function apiFetch(path: string, options: RequestInit = {}) {
     const res = await fetch(`${BACKEND_URL}${path}`, {
@@ -20,22 +20,34 @@ async function apiFetch(path: string, options: RequestInit = {}) {
     return res.json();
 }
 
-export const ClientApi = {
+export const Api = {
     // Lista status dos barbeiros + fila + tempos (PÚBLICO)
-    getQueueStatus: () => apiFetch('/api/public/queue'),
+    getQueueStatus: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
+
+    // Alias para compatibilidade com o que está sendo usado no page.tsx
+    getShopInfo: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
 
     // Cliente entra na fila de um barbeiro específico (PÚBLICO)
-    enterQueueForBarber: (barberId: string, clientName: string, clientPhone?: string) =>
+    enterQueueForBarber: (tenantId: string, barberId: string, clientName: string, clientPhone?: string) =>
         apiFetch('/api/public/queue/enter', {
             method: 'POST',
-            body: JSON.stringify({ barber_id: barberId, client_name: clientName, client_phone: clientPhone }),
+            body: JSON.stringify({
+                tenant_id: tenantId,
+                barber_id: barberId === 'any' ? undefined : barberId,
+                client_name: clientName,
+                client_phone: clientPhone
+            }),
         }),
 
-    // Cliente entra em "Qualquer barbeiro" (menor espera) (PÚBLICO)
-    enterQueueAnyBarber: (clientName: string, clientPhone?: string) =>
+    // Alias para compatibilidade com o joinQueue do page.tsx
+    joinQueue: (tenantId: string, barberId: string, clientName: string) =>
         apiFetch('/api/public/queue/enter', {
             method: 'POST',
-            body: JSON.stringify({ client_name: clientName, client_phone: clientPhone }),
+            body: JSON.stringify({
+                tenant_id: tenantId,
+                barber_id: barberId === 'any' ? undefined : barberId,
+                client_name: clientName
+            }),
         }),
 
     // Buscar status da fila de um ticket específico (PÚBLICO)
