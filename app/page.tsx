@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClientApi } from '@/lib/api';
+import { Api } from '@/lib/api';
 import { BarberCard } from '@/components/barber/barber-card';
 import { BarberList } from '@/components/barber/barber-list';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,7 @@ export default function HomePage() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await ClientApi.getQueueStatus();
+        const data = await Api.getQueueStatus(''); // Vazio busca o primeiro tenant ou via query string
         setBarbers(data || []);
       } catch (err) {
         console.error(err);
@@ -52,9 +52,9 @@ export default function HomePage() {
       let res;
       // Enviar telefone limpo sem máscara
       if (barberId) {
-        res = await ClientApi.enterQueueForBarber(barberId, clientName, rawPhone);
+        res = await Api.enterQueueForBarber('', barberId, clientName, rawPhone);
       } else {
-        res = await ClientApi.enterQueueAnyBarber(clientName, rawPhone);
+        res = await Api.enterQueueForBarber('', 'any', clientName, rawPhone);
       }
 
       // Redirecionar para a tela da fila

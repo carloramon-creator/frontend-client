@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClientApi } from '@/lib/api';
+import { Api } from '@/lib/api';
 import { supabase } from '@/lib/supabase-client';
 import { QueueStatusCard } from '@/components/queue/queue-status-card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ export default function FilaPage({ params }: { params: Promise<{ ticketId: strin
 
     const fetchTicket = async () => {
         try {
-            const data = await ClientApi.getQueueTicket(ticketId);
+            const data = await Api.getQueueTicket(ticketId);
             setTicket(data);
         } catch (err) {
             console.error(err);
@@ -25,32 +25,32 @@ export default function FilaPage({ params }: { params: Promise<{ ticketId: strin
         }
     };
     const handleCancel = async () => {
-  if (!ticketId) return;
-  try {
-    setLoading(true);
+        if (!ticketId) return;
+        try {
+            setLoading(true);
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/queue/${ticketId}/cancel`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/queue/${ticketId}/cancel`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-    if (!res.ok) {
-      console.error('Erro ao cancelar atendimento');
-      return;
-    }
+            if (!res.ok) {
+                console.error('Erro ao cancelar atendimento');
+                return;
+            }
 
-    router.push('/'); // volta para a home
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+            router.push('/'); // volta para a home
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { ClientApi } from '@/lib/api';
+import { Api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,7 @@ export default function BarberQueuePage({ params }: { params: Promise<{ barberId
 
     const fetchData = async () => {
         try {
-            const allBarbers = await ClientApi.getQueueStatus();
+            const allBarbers = await Api.getQueueStatus('');
             const myBarber = allBarbers.find((b: any) => b.barber_id === barberId);
             setBarberData(myBarber);
         } catch (err) {
@@ -35,7 +35,7 @@ export default function BarberQueuePage({ params }: { params: Promise<{ barberId
     const handleCallNext = async () => {
         setActionLoading(true);
         try {
-            await ClientApi.barberCallNext(barberId);
+            await Api.barberCallNext(barberId);
             await fetchData();
         } catch (err: any) {
             alert(err.message);
@@ -47,7 +47,7 @@ export default function BarberQueuePage({ params }: { params: Promise<{ barberId
     const handleFinishService = async (ticketId: string) => {
         setActionLoading(true);
         try {
-            await ClientApi.barberFinishService(ticketId);
+            await Api.barberFinishService(ticketId);
             await fetchData();
         } catch (err: any) {
             alert(err.message);

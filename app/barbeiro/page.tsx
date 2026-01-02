@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClientApi } from '@/lib/api';
+import { Api } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { User, Loader2, Scissors } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,7 @@ export default function BarberSelectPage() {
     useEffect(() => {
         async function load() {
             try {
-                const data = await ClientApi.getQueueStatus();
+                const data = await Api.getQueueStatus('');
                 setBarbers(data || []);
             } catch (err) {
                 console.error(err);
