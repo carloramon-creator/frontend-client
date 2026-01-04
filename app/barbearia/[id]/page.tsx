@@ -8,13 +8,17 @@ import {
     Scissors,
     Smartphone,
     ChevronRight,
-    UserCheck
+    UserCheck,
+    Phone,
+    Crown
 } from 'lucide-react';
 
 export default function ShopPage({ params }: { params: { id: string } }) {
     const [shopData, setShopData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [isPriority, setIsPriority] = useState(false);
     const [selectedBarber, setSelectedBarber] = useState<string>('any');
     const [joined, setJoined] = useState<any>(null);
 
@@ -37,8 +41,9 @@ export default function ShopPage({ params }: { params: { id: string } }) {
 
     const handleJoin = async () => {
         if (!name) return alert('Por favor, digite seu nome');
+        if (!phone) return alert('Por favor, digite seu telefone');
         try {
-            const res = await Api.joinQueue(params.id, selectedBarber, name);
+            const res = await Api.joinQueue(params.id, selectedBarber, name, phone, isPriority);
             setJoined(res);
             fetchStatus();
         } catch (error: any) {
@@ -127,7 +132,6 @@ export default function ShopPage({ params }: { params: { id: string } }) {
                 {/* Form */}
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-bold text-slate-500 ml-1">Seu Nome</label>
                         <input
                             type="text"
                             placeholder="Digite seu nome aqui"
@@ -135,6 +139,40 @@ export default function ShopPage({ params }: { params: { id: string } }) {
                             onChange={(e) => setName(e.target.value)}
                             className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-100 focus:outline-none focus:border-blue-600 transition-colors"
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] uppercase font-bold text-slate-500 ml-1">Seu Telefone</label>
+                        <div className="relative">
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                            <input
+                                type="tel"
+                                placeholder="(00) 00000-0000"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 pl-12 text-slate-100 focus:outline-none focus:border-blue-600 transition-colors"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] uppercase font-bold text-slate-500 ml-1">Tipo de Atendimento</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={() => setIsPriority(false)}
+                                className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${!isPriority ? 'bg-slate-800 border-slate-700 ring-2 ring-slate-600' : 'bg-slate-900 border-slate-800 opacity-50'}`}
+                            >
+                                <Users size={24} className={!isPriority ? 'text-white' : 'text-slate-500'} />
+                                <span className={`text-xs font-bold uppercase ${!isPriority ? 'text-white' : 'text-slate-500'}`}>Normal</span>
+                            </button>
+                            <button
+                                onClick={() => setIsPriority(true)}
+                                className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${isPriority ? 'bg-amber-500/10 border-amber-500 ring-2 ring-amber-500' : 'bg-slate-900 border-slate-800 opacity-50'}`}
+                            >
+                                <Crown size={24} className={isPriority ? 'text-amber-500' : 'text-slate-500'} />
+                                <span className={`text-xs font-bold uppercase ${isPriority ? 'text-amber-500' : 'text-slate-500'}`}>Prioritário</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div className="space-y-4">
