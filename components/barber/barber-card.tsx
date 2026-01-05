@@ -7,6 +7,7 @@ interface BarberCardProps {
     barber: {
         barber_id: string;
         barber_name: string;
+        barber_nickname?: string;
         photo_url?: string;
         status: string;
         is_active: boolean;
@@ -35,7 +36,7 @@ export function BarberCard({ barber, isSelected, onSelect }: BarberCardProps) {
                     {barber.photo_url ? (
                         <img
                             src={barber.photo_url}
-                            alt={barber.barber_name}
+                            alt={barber.barber_nickname || barber.barber_name}
                             className="w-full h-full object-cover"
                         />
                     ) : (
@@ -56,7 +57,7 @@ export function BarberCard({ barber, isSelected, onSelect }: BarberCardProps) {
                 <div className="p-4 space-y-3">
                     <div>
                         <h3 className="text-lg font-black text-slate-100 italic uppercase">
-                            {barber.barber_name}
+                            {barber.barber_nickname || barber.barber_name}
                         </h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
                             <span className={cn(
