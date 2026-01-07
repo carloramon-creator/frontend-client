@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase-client';
 import { QueueStatusCard } from '@/components/queue/queue-status-card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, RefreshCw } from 'lucide-react';
+import { InstallPWA } from '@/components/pwa/install-button';
 
 export default function FilaPage({ params }: { params: Promise<{ ticketId: string }> }) {
     const { ticketId } = use(params);
@@ -134,6 +135,10 @@ export default function FilaPage({ params }: { params: Promise<{ ticketId: strin
                     </Button>
                 </section>
             )}
+
+            <section>
+                <InstallPWA tenant={ticket.barbershop} />
+            </section>
 
             <section className="text-center py-4">
                 <button

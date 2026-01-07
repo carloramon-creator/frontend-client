@@ -18,6 +18,18 @@ export default function RootLayout({
       }
     };
     window.addEventListener('791_tenant_found', handleTenant);
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          console.log('SW registered:', reg);
+        }).catch(err => {
+          console.log('SW registration failed:', err);
+        });
+      });
+    }
+
     return () => window.removeEventListener('791_tenant_found', handleTenant);
   }, []);
 
@@ -27,6 +39,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        {tenant?.name && <meta name="apple-mobile-web-app-title" content={tenant.name} />}
+        {tenant?.logo_url && <link rel="apple-touch-icon" href={tenant.logo_url} />}
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="antialiased selection:bg-blue-500/30 bg-slate-950">
         <div className="min-h-screen flex flex-col">

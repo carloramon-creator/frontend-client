@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { User, Sparkles, Loader2, Camera, Fingerprint, Phone, CreditCard, ChevronRight, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { InstallPWA } from '@/components/pwa/install-button';
 
 export default function HomePage() {
   const router = useRouter();
@@ -343,6 +344,8 @@ export default function HomePage() {
           </section>
         )}
       </div>
+
+      <InstallPWA tenant={shopInfo} />
 
       {issubmitting && (
         <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center">
