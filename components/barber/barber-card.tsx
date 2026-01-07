@@ -56,7 +56,7 @@ export function BarberCard({ barber, isSelected, onSelect }: BarberCardProps) {
 
                 <div className="p-4 space-y-3">
                     <div>
-                        <h3 className="text-lg font-black text-slate-100 italic uppercase">
+                        <h3 className="text-lg font-black text-slate-100 uppercase">
                             {barber.barber_nickname || barber.barber_name}
                         </h3>
                         <div className="flex items-center gap-1.5 mt-0.5">

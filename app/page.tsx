@@ -162,7 +162,7 @@ export default function HomePage() {
         {step === 1 && (
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
-              <h2 className="text-2xl font-black text-slate-100 italic uppercase leading-tight">
+              <h2 className="text-2xl font-black text-slate-100 uppercase leading-tight">
                 Quem <span className="text-blue-500">é você?</span>
               </h2>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Inicie sua experiência premium</p>
@@ -212,7 +212,7 @@ export default function HomePage() {
         {step === 2 && (
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
-              <h2 className="text-2xl font-black text-slate-100 italic uppercase">
+              <h2 className="text-2xl font-black text-slate-100 uppercase">
                 Seus <span className="text-blue-500">Dados</span>
               </h2>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Para NF-e e notificações</p>
@@ -285,7 +285,7 @@ export default function HomePage() {
         {step === 3 && (
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1 text-center">
-              <h2 className="text-2xl font-black text-slate-100 italic uppercase">
+              <h2 className="text-2xl font-black text-slate-100 uppercase">
                 Escolha seu <span className="text-blue-500">Artista</span>
               </h2>
               {clientName && <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Bem-vindo de volta, {clientName.split(' ')[0]}!</p>}
@@ -301,8 +301,8 @@ export default function HomePage() {
                     <Sparkles size={24} />
                   </div>
                   <div className="text-left">
-                    <h4 className="font-black text-slate-100 uppercase italic text-base leading-tight">Próximo Disponível</h4>
-                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest italic mt-0.5">Menor tempo</p>
+                    <h4 className="font-black text-slate-100 uppercase text-base leading-tight">Próximo Disponível</h4>
+                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest mt-0.5">Menor tempo</p>
                   </div>
                 </div>
                 <ChevronRight className="text-blue-600 group-hover:translate-x-1" size={16} />
@@ -333,7 +333,7 @@ export default function HomePage() {
       {issubmitting && (
         <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center">
           <div className="w-20 h-20 border-4 border-blue-500/10 border-t-blue-500 rounded-full animate-spin mb-6" />
-          <h3 className="text-lg font-black text-slate-100 italic uppercase">Preparando sua <span className="text-blue-500">cadeira...</span></h3>
+          <h3 className="text-lg font-black text-slate-100 uppercase">Preparando sua <span className="text-blue-500">cadeira...</span></h3>
         </div>
       )}
     </div>

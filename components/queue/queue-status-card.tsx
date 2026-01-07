@@ -69,10 +69,10 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
 
                         <div className="space-y-2">
                             <p className="text-[10px] font-black uppercase text-slate-500 tracking-[0.4em]">Status do Ticket</p>
-                            <h2 className="text-4xl font-black text-slate-100 italic uppercase leading-tight">
+                            <h2 className="text-4xl font-black text-slate-100 uppercase leading-tight">
                                 {config.title}
                             </h2>
-                            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic">
+                            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">
                                 {config.description}
                             </p>
                         </div>
@@ -92,14 +92,14 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
                         <div className="absolute top-0 left-0 w-1 h-full bg-blue-600" />
                         <CardContent className="p-6 text-center space-y-1">
                             <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">Posição</p>
-                            <p className="text-4xl font-black text-slate-100 italic transition-colors group-hover:text-blue-500">{ticket.real_position}<span className="text-lg">º</span></p>
+                            <p className="text-4xl font-black text-slate-100 transition-colors group-hover:text-blue-500">{ticket.real_position}<span className="text-lg">º</span></p>
                         </CardContent>
                     </Card>
                     <Card className="bg-slate-900/50 backdrop-blur-md border-slate-800/50 rounded-3xl overflow-hidden relative group">
                         <div className="absolute top-0 left-0 w-1 h-full bg-blue-600" />
                         <CardContent className="p-6 text-center space-y-1">
                             <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">Tempo</p>
-                            <p className="text-4xl font-black text-slate-100 italic transition-colors group-hover:text-blue-500">~{ticket.estimated_wait_minutes}<span className="text-lg">m</span></p>
+                            <p className="text-4xl font-black text-slate-100 transition-colors group-hover:text-blue-500">~{ticket.estimated_wait_minutes}<span className="text-lg">m</span></p>
                         </CardContent>
                     </Card>
                 </div>
@@ -124,8 +124,8 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
                             </div>
                         </div>
                         <div>
-                            <p className="text-xl font-black text-slate-100 uppercase italic leading-none">{ticket.barbers.name}</p>
-                            <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest mt-1.5 italic">Profissional Designado</p>
+                            <p className="text-xl font-black text-slate-100 uppercase leading-none">{ticket.barbers.name}</p>
+                            <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest mt-1.5">Profissional Designado</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -135,7 +135,7 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
                 <div className="flex items-start gap-4 p-6 bg-blue-600/5 border border-blue-600/20 rounded-[2rem] relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full blur-3xl -mr-12 -mt-12" />
                     <AlertCircle className="text-blue-500 shrink-0 mt-1" size={20} />
-                    <p className="text-[11px] text-slate-400 font-bold leading-relaxed italic uppercase tracking-tighter">
+                    <p className="text-[11px] text-slate-400 font-bold leading-relaxed uppercase tracking-tighter">
                         O tempo é uma estimativa. Acompanhe a fila em tempo real e fique por perto para não perder sua vez!
                     </p>
                 </div>

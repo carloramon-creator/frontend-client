@@ -42,7 +42,7 @@ export default function RootLayout({
                   )}
                 </div>
                 <div className="flex flex-col">
-                  <h1 className="text-lg font-black text-slate-100 italic uppercase tracking-tighter leading-none">
+                  <h1 className="text-lg font-black text-slate-100 uppercase tracking-tighter leading-none">
                     {tenant?.name || "791 Barber"}
                   </h1>
                   <span className="text-[9px] text-blue-500 font-bold tracking-[0.2em] uppercase mt-1">Experience Excellence</span>
