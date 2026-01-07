@@ -31,21 +31,21 @@ export default function RootLayout({
       <body className="antialiased selection:bg-blue-500/30 overflow-x-hidden bg-slate-950">
         <div className="min-h-screen flex flex-col max-h-screen overflow-hidden">
           {/* Main Header - Dynamic Branding */}
-          <header className="py-4 px-4 border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
-            <div className="max-w-2xl mx-auto flex flex-col items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center font-black text-white italic shadow-xl relative overflow-hidden group">
+          <header className="py-6 px-4 border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl flex items-center justify-center font-black text-white italic shadow-2xl relative overflow-hidden group">
                   {tenant?.logo_url ? (
                     <img src={tenant.logo_url} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="relative z-10 text-lg">{tenant?.name?.[0] || '791'}</span>
+                    <span className="relative z-10 text-3xl">{tenant?.name?.[0] || '791'}</span>
                   )}
                 </div>
-                <div className="flex flex-col">
-                  <h1 className="text-lg font-black text-slate-100 uppercase tracking-tighter leading-none">
+                <div className="flex flex-col items-center text-center">
+                  <h1 className="text-3xl font-black text-slate-100 uppercase tracking-tighter leading-tight">
                     {tenant?.name || "791 Barber"}
                   </h1>
-                  <span className="text-[9px] text-blue-500 font-bold tracking-[0.2em] uppercase mt-1">Experience Excellence</span>
+                  <span className="text-xs text-blue-500 font-bold tracking-[0.3em] uppercase mt-2">Experience Excellence</span>
                 </div>
               </div>
             </div>
@@ -56,8 +56,8 @@ export default function RootLayout({
           </main>
 
           <footer className="py-2 border-t border-slate-950 text-center bg-slate-950/50">
-            <p className="text-[8px] text-slate-700 uppercase font-black tracking-widest italic">
-              Powered by <span className="text-slate-800">791 Solutions</span>
+            <p className="text-[8px] text-slate-700 uppercase font-black tracking-widest">
+              Licensed by <span className="text-slate-800">791 Barber</span>
             </p>
           </footer>
         </div>
