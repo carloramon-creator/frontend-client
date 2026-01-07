@@ -118,8 +118,8 @@ export default function HomePage() {
     }
   };
 
-  // Fixed height layout to avoid scrolling
-  const containerClasses = "h-[calc(100vh-140px)] flex flex-col justify-between overflow-hidden py-2";
+  // Flexible container
+  const containerClasses = "min-h-[calc(100vh-140px)] flex flex-col py-4";
 
   if (loading) {
     return (
@@ -168,18 +168,23 @@ export default function HomePage() {
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Inicie sua experiência premium</p>
             </div>
 
-            <div className="flex flex-col items-center space-y-4 flex-1 justify-center py-2">
+            <div className="flex flex-col items-center space-y-4 py-2">
               <div
                 onClick={handlePhotoClick}
-                className="w-28 h-28 rounded-3xl border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-800/50 transition-all overflow-hidden relative group"
+                className="w-24 h-24 rounded-full border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-800/50 transition-all overflow-hidden relative group shadow-inner"
               >
                 {clientPhoto ? (
                   <img src={clientPhoto} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <>
-                    <Camera className="text-slate-600 group-hover:text-blue-500 transition-colors" size={28} />
-                    <span className="text-[10px] font-black uppercase text-slate-500 mt-2 text-center">Foto (Opcional)</span>
+                    <Camera className="text-slate-600 group-hover:text-blue-500 transition-colors" size={24} />
+                    <span className="text-[8px] font-black uppercase text-slate-500 mt-1 text-center px-2">Adicionar Foto</span>
                   </>
+                )}
+                {clientPhoto && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <Camera className="text-white" size={20} />
+                  </div>
                 )}
               </div>
               <input type="file" accept="image/*" capture="user" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
@@ -201,7 +206,7 @@ export default function HomePage() {
             <Button
               onClick={() => clientName && setStep(2)}
               disabled={!clientName}
-              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-auto"
+              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-4"
             >
               Próximo
               <ChevronRight className="ml-2" size={18} />

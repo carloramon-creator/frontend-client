@@ -28,8 +28,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="antialiased selection:bg-blue-500/30 overflow-x-hidden bg-slate-950">
-        <div className="min-h-screen flex flex-col max-h-screen overflow-hidden">
+      <body className="antialiased selection:bg-blue-500/30 bg-slate-950">
+        <div className="min-h-screen flex flex-col">
           {/* Main Header - Dynamic Branding */}
           <header className="py-6 px-4 border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
             <div className="max-w-2xl mx-auto">

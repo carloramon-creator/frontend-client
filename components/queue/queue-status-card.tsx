@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 interface QueueStatusCardProps {
     ticket: {
         client_name: string;
+        client_photo?: string;
         status: 'waiting' | 'attending' | 'finished';
         real_position: number;
         estimated_wait_minutes: number;
@@ -63,7 +64,13 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
                         <div className="flex justify-center relative">
                             <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
                             <div className="relative z-10 transition-transform duration-500 hover:scale-110">
-                                {config.icon}
+                                {ticket.client_photo ? (
+                                    <div className="w-24 h-24 rounded-full border-4 border-blue-500/30 overflow-hidden shadow-2xl">
+                                        <img src={ticket.client_photo} alt={ticket.client_name} className="w-full h-full object-cover" />
+                                    </div>
+                                ) : (
+                                    config.icon
+                                )}
                             </div>
                         </div>
 
