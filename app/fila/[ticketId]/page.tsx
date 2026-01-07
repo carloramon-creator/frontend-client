@@ -124,13 +124,27 @@ export default function FilaPage({ params }: { params: Promise<{ ticketId: strin
                 <QueueStatusCard ticket={ticket} />
             </section>
 
+            {(ticket.status === 'waiting' || ticket.status === 'attending') && (
+                <section className="pt-2 px-4">
+                    <Button
+                        variant="ghost"
+                        onClick={handleCancel}
+                        disabled={loading}
+                        className="w-full h-12 text-slate-500 hover:text-red-500 hover:bg-red-500/5 font-black uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all"
+                    >
+                        {loading ? <Loader2 className="animate-spin mr-2" size={14} /> : null}
+                        Sair da Fila
+                    </Button>
+                </section>
+            )}
+
             {ticket.status === 'finished' && (
-                <section className="pt-6">
+                <section className="pt-6 px-4">
                     <Button
                         onClick={() => router.push('/')}
-                        className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-900/40"
+                        className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-900/40"
                     >
-                        Sair da Fila e Voltar para o Início
+                        Voltar para o Início
                     </Button>
                 </section>
             )}
@@ -138,7 +152,7 @@ export default function FilaPage({ params }: { params: Promise<{ ticketId: strin
             <section className="text-center py-4">
                 <button
                     onClick={fetchTicket}
-                    className="inline-flex items-center gap-2 text-[10px] text-slate-700 hover:text-slate-500 transition-colors uppercase font-black tracking-widest italic"
+                    className="inline-flex items-center gap-2 text-[10px] text-slate-700 hover:text-slate-500 transition-colors uppercase font-black tracking-widest"
                 >
                     <RefreshCw size={10} />
                     Atualizar Manualmente
