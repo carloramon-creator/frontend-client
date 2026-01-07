@@ -73,4 +73,11 @@ export const Api = {
         apiFetch(`/api/public/barber/finish/${ticketId}`, {
             method: 'PUT',
         }),
+
+    // Cliente sai da fila (CANCELAR)
+    cancelTicket: (ticketId: string) =>
+        apiFetch(`/api/public/queue/cancel`, {
+            method: 'PUT',
+            body: JSON.stringify({ ticketId }),
+        }),
 };

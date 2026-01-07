@@ -315,16 +315,25 @@ export default function HomePage() {
                 />
               </div>
 
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  localStorage.clear();
-                  window.location.reload();
-                }}
-                className="w-full text-slate-700 font-bold uppercase text-[8px] tracking-[0.2em] mt-2 h-auto py-1"
-              >
-                Limpar meus dados (Novo Cliente)
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(2)}
+                  className="flex-1 h-14 border-slate-800 text-slate-400 font-black uppercase rounded-2xl"
+                >
+                  Voltar
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    localStorage.clear();
+                    window.location.reload();
+                  }}
+                  className="flex-1 text-slate-700 font-bold uppercase text-[8px] tracking-[0.2em] h-auto"
+                >
+                  Limpar dados
+                </Button>
+              </div>
             </div>
           </section>
         )}

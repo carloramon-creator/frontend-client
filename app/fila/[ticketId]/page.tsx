@@ -29,21 +29,7 @@ export default function FilaPage({ params }: { params: Promise<{ ticketId: strin
         try {
             setLoading(true);
 
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/queue/${ticketId}/cancel`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (!res.ok) {
-                console.error('Erro ao cancelar atendimento');
-                return;
-            }
-
+            await Api.cancelTicket(ticketId);
             router.push('/'); // volta para a home
         } catch (err) {
             console.error(err);
