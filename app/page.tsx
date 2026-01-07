@@ -16,6 +16,7 @@ export default function HomePage() {
   const router = useRouter();
   const [barbers, setBarbers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [shopInfo, setShopInfo] = useState<{ name: string; logo_url?: string } | null>(null);
 
   // Registration State
   const [step, setStep] = useState(1);
@@ -39,10 +40,22 @@ export default function HomePage() {
     if (savedCpf) setClientCpf(savedCpf);
     if (savedPhoto) setClientPhoto(savedPhoto);
 
+    // If already has name and phone, skip to barber selection (Step 3)
+    if (savedName && savedPhone) {
+      setStep(3);
+    }
+
     async function load() {
       try {
-        const data = await Api.getQueueStatus('');
-        setBarbers(data || []);
+        const response = await Api.getQueueStatus('');
+        // New structure: { barbers, tenant }
+        setBarbers(response.barbers || []);
+        setShopInfo(response.tenant || null);
+
+        // Push branding to layout via custom event or just let it stay here if layout handles it
+        if (response.tenant) {
+          window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: response.tenant }));
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -64,7 +77,6 @@ export default function HomePage() {
 
     setIsSubmitting(true);
     try {
-      // Save for next time
       localStorage.setItem('791_client_name', clientName);
       localStorage.setItem('791_client_phone', clientPhone);
       localStorage.setItem('791_client_cpf', clientCpf);
@@ -106,36 +118,39 @@ export default function HomePage() {
     }
   };
 
+  // Fixed height layout to avoid scrolling
+  const containerClasses = "h-[calc(100vh-140px)] flex flex-col justify-between overflow-hidden py-2";
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-40">
+      <div className="flex flex-col items-center justify-center h-[60vh]">
         <div className="relative">
           <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
           <Loader2 className="absolute inset-0 m-auto text-blue-500 animate-pulse" size={24} />
         </div>
-        <p className="mt-6 text-slate-500 font-bold uppercase tracking-widest text-[10px] animate-pulse">
-          Sincronizando com a Barbearia...
+        <p className="mt-6 text-slate-500 font-bold uppercase tracking-widest text-[10px] animate-pulse text-center">
+          Sincronizando com <br /> {shopInfo?.name || 'sua Barbearia'}...
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Progress Indicator */}
-      <div className="flex justify-between items-center px-2">
+    <div className={cn("animate-in fade-in slide-in-from-bottom-4 duration-700", containerClasses)}>
+      {/* Progress Indicator - Compact */}
+      <div className="flex justify-between items-center px-4 mb-4">
         {[1, 2, 3].map((s) => (
           <div key={s} className="flex items-center flex-1 last:flex-none">
             <div className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500 border-2",
-              step === s ? "bg-blue-600 border-blue-400 text-white scale-110 shadow-lg shadow-blue-900/40" :
+              "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-500 border-2",
+              step === s ? "bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-900/40 scale-110" :
                 step > s ? "bg-green-500 border-green-400 text-white" : "border-slate-800 text-slate-600"
             )}>
-              {step > s ? <Check size={14} strokeWidth={4} /> : s}
+              {step > s ? <Check size={12} strokeWidth={4} /> : s}
             </div>
             {s < 3 && (
               <div className={cn(
-                "h-0.5 flex-1 mx-2 transition-all duration-500",
+                "h-0.5 flex-1 mx-2",
                 step > s ? "bg-green-500" : "bg-slate-800"
               )} />
             )}
@@ -143,197 +158,184 @@ export default function HomePage() {
         ))}
       </div>
 
-      {step === 1 && (
-        <section className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-black text-slate-100 italic uppercase">
-              Quem <span className="text-blue-500 tracking-tighter">é você?</span>
-            </h2>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Vamos começar sua experiência</p>
-          </div>
+      <div className="flex-1 overflow-y-auto px-4 space-y-4">
+        {step === 1 && (
+          <section className="space-y-4 flex flex-col h-full">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-slate-100 italic uppercase leading-tight">
+                Quem <span className="text-blue-500">é você?</span>
+              </h2>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Inicie sua experiência premium</p>
+            </div>
 
-          <div className="space-y-6">
-            <div className="flex flex-col items-center space-y-4">
+            <div className="flex flex-col items-center space-y-4 flex-1 justify-center py-2">
               <div
                 onClick={handlePhotoClick}
-                className="w-32 h-32 rounded-3xl border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-800/50 transition-all overflow-hidden relative group"
+                className="w-28 h-28 rounded-3xl border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-800/50 transition-all overflow-hidden relative group"
               >
                 {clientPhoto ? (
                   <img src={clientPhoto} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <>
-                    <Camera className="text-slate-600 group-hover:text-blue-500 transition-colors" size={32} />
-                    <span className="text-[10px] font-black uppercase text-slate-500 mt-2">Sua Foto</span>
+                    <Camera className="text-slate-600 group-hover:text-blue-500 transition-colors" size={28} />
+                    <span className="text-[10px] font-black uppercase text-slate-500 mt-2 text-center">Foto (Opcional)</span>
                   </>
                 )}
-                <div className="absolute inset-x-0 bottom-0 bg-black/60 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="text-[8px] text-center font-black text-white uppercase tracking-tighter">Mudar Foto</p>
-                </div>
               </div>
-              <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
-            </div>
+              <input type="file" accept="image/*" capture="user" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Nome Completo</Label>
+              <div className="w-full space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-1">Nome Completo</Label>
                 <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={18} />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
                   <Input
                     placeholder="Ex: João da Silva"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    className="h-14 pl-12 bg-slate-900 border-slate-800 text-lg font-bold placeholder:text-slate-700 focus:border-blue-500 focus:ring-blue-500/20 rounded-2xl"
+                    className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold placeholder:text-slate-700 focus:border-blue-500 rounded-2xl"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => clientName && setStep(2)}
+              disabled={!clientName}
+              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-auto"
+            >
+              Próximo
+              <ChevronRight className="ml-2" size={18} />
+            </Button>
+          </section>
+        )}
+
+        {step === 2 && (
+          <section className="space-y-4 flex flex-col h-full">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-slate-100 italic uppercase">
+                Seus <span className="text-blue-500">Dados</span>
+              </h2>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Para NF-e e notificações</p>
+            </div>
+
+            <div className="space-y-4 flex-1 justify-center flex flex-col py-2">
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">WhatsApp (DDD)</Label>
+                <div className="relative group">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
+                  <Input
+                    type="tel"
+                    placeholder="(00) 00000-0000"
+                    value={clientPhone}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+                      let masked = raw;
+                      if (raw.length > 2) {
+                        masked = `(${raw.slice(0, 2)}) ${raw.slice(2)}`;
+                      }
+                      if (raw.length > 7) {
+                        masked = `(${raw.slice(0, 2)}) ${raw.slice(2, 7)}-${raw.slice(7)}`;
+                      }
+                      setClientPhone(masked);
+                    }}
+                    className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold focus:border-blue-500 rounded-2xl"
                   />
                 </div>
               </div>
 
-              <Button
-                onClick={() => clientName && setStep(2)}
-                disabled={!clientName}
-                className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-900/20 group text-lg"
-              >
-                Próximo Passo
-                <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section className="space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-black text-slate-100 italic uppercase">
-              Dados de <span className="text-blue-500 tracking-tighter">Contato</span>
-            </h2>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Para NF-e e notificações</p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">WhatsApp (DDD)</Label>
-              <div className="relative group">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <Input
-                  type="tel"
-                  placeholder="(00) 00000-0000"
-                  value={clientPhone}
-                  onChange={(e) => {
-                    let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-                    if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
-                    if (v.length > 9) v = `${v.slice(0, 9)}-${v.slice(9)}`;
-                    setClientPhone(v);
-                  }}
-                  className="h-14 pl-12 bg-slate-900 border-slate-800 text-lg font-bold focus:border-blue-500 focus:ring-blue-500/20 rounded-2xl"
-                />
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">CPF (NF-e)</Label>
+                <div className="relative group">
+                  <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
+                  <Input
+                    placeholder="000.000.000-00"
+                    value={clientCpf}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+                      if (v.length > 3) v = `${v.slice(0, 3)}.${v.slice(3)}`;
+                      if (v.length > 7) v = `${v.slice(0, 7)}.${v.slice(7)}`;
+                      if (v.length > 11) v = `${v.slice(0, 11)}-${v.slice(11)}`;
+                      setClientCpf(v);
+                    }}
+                    className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold focus:border-blue-500 rounded-2xl"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">CPF (Opcional)</Label>
-              <div className="relative group">
-                <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <Input
-                  placeholder="000.000.000-00"
-                  value={clientCpf}
-                  onChange={(e) => {
-                    let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-                    if (v.length > 3) v = `${v.slice(0, 3)}.${v.slice(3)}`;
-                    if (v.length > 7) v = `${v.slice(0, 7)}.${v.slice(7)}`;
-                    if (v.length > 11) v = `${v.slice(0, 11)}-${v.slice(11)}`;
-                    setClientCpf(v);
-                  }}
-                  className="h-14 pl-12 bg-slate-900 border-slate-800 text-lg font-bold focus:border-blue-500 focus:ring-blue-500/20 rounded-2xl"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 mt-auto">
               <Button
                 variant="outline"
                 onClick={() => setStep(1)}
-                className="flex-1 h-16 border-slate-800 text-slate-400 font-black uppercase italic rounded-2xl hover:bg-slate-900"
+                className="flex-1 h-14 border-slate-800 text-slate-400 font-black uppercase italic rounded-2xl"
               >
                 Voltar
               </Button>
               <Button
                 onClick={() => clientPhone.length >= 14 && setStep(3)}
                 disabled={clientPhone.length < 14}
-                className="flex-[2] h-16 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-900/20 group text-lg"
+                className="flex-[2] h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg"
               >
                 Continuar
-                <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {step === 3 && (
-        <section className="space-y-6 animate-in slide-in-from-right-4 duration-500">
-          <div className="space-y-2 text-center">
-            <h2 className="text-3xl font-black text-slate-100 italic uppercase">
-              Escolha seu <span className="text-blue-500 tracking-tighter">Artista</span>
-            </h2>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Quem vai cuidar do seu estilo hoje?</p>
-          </div>
-
-          <div className="space-y-4 pb-10">
-            {/* Opção Rápida: Qualquer Barbeiro */}
-            <div
-              className="cursor-pointer border-2 border-dashed border-blue-600/30 bg-blue-600/5 hover:bg-blue-600/10 hover:border-blue-600/50 transition-all p-6 rounded-3xl flex items-center justify-between group"
-              onClick={() => handleEnterQueue()}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                  <Sparkles size={28} />
-                </div>
-                <div className="text-left">
-                  <h4 className="font-black text-slate-100 uppercase italic text-lg leading-tight">Próximo Disponível</h4>
-                  <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest italic mt-1">Menor tempo de espera</p>
-                </div>
-              </div>
-              <ChevronRight className="text-blue-600 group-hover:translate-x-1 transition-transform" />
+        {step === 3 && (
+          <section className="space-y-4 flex flex-col h-full">
+            <div className="space-y-1 text-center">
+              <h2 className="text-2xl font-black text-slate-100 italic uppercase">
+                Escolha seu <span className="text-blue-500">Artista</span>
+              </h2>
+              {clientName && <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Bem-vindo de volta, {clientName.split(' ')[0]}!</p>}
             </div>
 
-            <div className="relative pt-4">
-              <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                <div className="w-full border-t border-slate-900"></div>
+            <div className="space-y-3 pb-4">
+              <div
+                className="cursor-pointer border-2 border-dashed border-blue-600/30 bg-blue-600/5 hover:bg-blue-600/10 hover:border-blue-600/50 transition-all p-4 rounded-3xl flex items-center justify-between group"
+                onClick={() => handleEnterQueue()}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                    <Sparkles size={24} />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="font-black text-slate-100 uppercase italic text-base leading-tight">Próximo Disponível</h4>
+                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest italic mt-0.5">Menor tempo</p>
+                  </div>
+                </div>
+                <ChevronRight className="text-blue-600 group-hover:translate-x-1" size={16} />
               </div>
-              <div className="relative flex justify-center">
-                <span className="bg-slate-950 px-4 text-[10px] font-black text-slate-700 uppercase tracking-[0.3em]">Ou escolha um profissional</span>
+
+              <div className="overflow-y-auto max-h-[35vh] pr-1 custom-scrollbar">
+                <BarberList
+                  barbers={barbers}
+                  onSelect={(id) => handleEnterQueue(id)}
+                />
               </div>
+
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.reload();
+                }}
+                className="w-full text-slate-700 font-bold uppercase text-[8px] tracking-[0.2em] mt-2 h-auto py-1"
+              >
+                Limpar meus dados (Novo Cliente)
+              </Button>
             </div>
-
-            <BarberList
-              barbers={barbers}
-              onSelect={(id) => handleEnterQueue(id)}
-            />
-
-            <Button
-              variant="link"
-              onClick={() => setStep(2)}
-              className="w-full text-slate-600 font-bold uppercase text-[10px] tracking-[0.2em] mt-4"
-            >
-              ← Revisar meus dados
-            </Button>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
+      </div>
 
       {issubmitting && (
         <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center">
-          <div className="relative mb-8">
-            <div className="w-24 h-24 border-4 border-blue-500/10 border-t-blue-500 rounded-full animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="text-blue-500 animate-pulse" size={32} />
-            </div>
-          </div>
-          <h3 className="text-xl font-black text-slate-100 italic uppercase">Preparando sua <span className="text-blue-500">experiência...</span></h3>
-          <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.4em] mt-2 animate-bounce">Aguarde um momento</p>
+          <div className="w-20 h-20 border-4 border-blue-500/10 border-t-blue-500 rounded-full animate-spin mb-6" />
+          <h3 className="text-lg font-black text-slate-100 italic uppercase">Preparando sua <span className="text-blue-500">cadeira...</span></h3>
         </div>
       )}
     </div>
   );
 }
-
