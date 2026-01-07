@@ -28,20 +28,7 @@ export const Api = {
     getShopInfo: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
 
     // Cliente entra na fila de um barbeiro específico (PÚBLICO)
-    enterQueueForBarber: (tenantId: string, barberId: string, clientName: string, clientPhone?: string) =>
-        apiFetch('/api/public/queue/enter', {
-            method: 'POST',
-            body: JSON.stringify({
-                tenant_id: tenantId,
-                barber_id: barberId === 'any' ? undefined : barberId,
-                client_name: clientName,
-                client_phone: clientPhone
-            }),
-        }),
-
-    // Alias para compatibilidade com o joinQueue do page.tsx
-    // Alias para compatibilidade com o joinQueue do page.tsx
-    joinQueue: (tenantId: string, barberId: string, clientName: string, clientPhone: string, isPriority: boolean = false) =>
+    enterQueueForBarber: (tenantId: string, barberId: string, clientName: string, clientPhone?: string, cpf?: string, photo_url?: string) =>
         apiFetch('/api/public/queue/enter', {
             method: 'POST',
             body: JSON.stringify({
@@ -49,7 +36,23 @@ export const Api = {
                 barber_id: barberId === 'any' ? undefined : barberId,
                 client_name: clientName,
                 client_phone: clientPhone,
-                is_priority: isPriority
+                cpf,
+                photo_url
+            }),
+        }),
+
+    // Alias para compatibilidade com o joinQueue do page.tsx
+    joinQueue: (tenantId: string, barberId: string, clientName: string, clientPhone: string, isPriority: boolean = false, cpf?: string, photo_url?: string) =>
+        apiFetch('/api/public/queue/enter', {
+            method: 'POST',
+            body: JSON.stringify({
+                tenant_id: tenantId,
+                barber_id: barberId === 'any' ? undefined : barberId,
+                client_name: clientName,
+                client_phone: clientPhone,
+                is_priority: isPriority,
+                cpf,
+                photo_url
             }),
         }),
 

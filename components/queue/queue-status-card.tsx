@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, Clock, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QueueStatusCardProps {
@@ -23,24 +23,27 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
                 return {
                     title: "Sua vez chegou!",
                     description: "Você está sendo atendido agora. Aproveite!",
-                    color: "bg-emerald-500",
-                    icon: <CheckCircle2 className="text-emerald-500" size={48} />,
+                    color: "from-emerald-500 to-emerald-700",
+                    glow: "shadow-emerald-900/40",
+                    icon: <CheckCircle2 className="text-emerald-500 animate-bounce" size={48} />,
                     badge: "Em Atendimento"
                 };
             case 'finished':
                 return {
-                    title: "Atendimento concluído",
-                    description: "Obrigado pela preferência! Nos vemos na próxima.",
-                    color: "bg-slate-500",
-                    icon: <CheckCircle2 className="text-slate-500" size={48} />,
+                    title: "Concluído!",
+                    description: "Obrigado pela preferência. Volte sempre!",
+                    color: "from-blue-500 to-blue-700",
+                    glow: "shadow-blue-900/40",
+                    icon: <Sparkles className="text-blue-500" size={48} />,
                     badge: "Finalizado"
                 };
             default:
                 return {
-                    title: "Você está na fila",
-                    description: "Acompanhe sua posição abaixo em tempo real.",
-                    color: "bg-amber-500",
-                    icon: <Clock className="text-amber-500" size={48} />,
+                    title: "Na Fila",
+                    description: "Estamos preparando sua cadeira. Aguarde!",
+                    color: "from-blue-600 to-blue-900",
+                    glow: "shadow-blue-900/60",
+                    icon: <Clock className="text-blue-500 animate-pulse" size={48} />,
                     badge: "Aguardando"
                 };
         }
@@ -49,77 +52,95 @@ export function QueueStatusCard({ ticket }: QueueStatusCardProps) {
     const config = getStatusConfig();
 
     return (
-        <div className="space-y-6">
-            <Card className="bg-slate-900 border-2 border-slate-800 overflow-hidden">
-                <div className={cn("h-1", config.color)} />
-                <CardContent className="p-8 text-center space-y-6">
-                    <div className="flex justify-center">
-                        {config.icon}
-                    </div>
+        <div className="space-y-8">
+            <div className="relative group">
+                <div className={cn(
+                    "absolute -inset-1 bg-gradient-to-r blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200",
+                    config.color
+                )} />
+                <Card className="relative bg-slate-900/80 backdrop-blur-xl border-slate-800/50 overflow-hidden rounded-[2.5rem]">
+                    <CardContent className="p-10 text-center space-y-6">
+                        <div className="flex justify-center relative">
+                            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
+                            <div className="relative z-10 transition-transform duration-500 hover:scale-110">
+                                {config.icon}
+                            </div>
+                        </div>
 
-                    <div className="space-y-2">
-                        <h2 className="text-3xl font-black text-slate-100 italic uppercase">
-                            {config.title}
-                        </h2>
-                        <p className="text-slate-400 font-medium">
-                            {config.description}
-                        </p>
-                    </div>
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-[0.4em]">Status do Ticket</p>
+                            <h2 className="text-4xl font-black text-slate-100 italic uppercase leading-tight">
+                                {config.title}
+                            </h2>
+                            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic">
+                                {config.description}
+                            </p>
+                        </div>
 
-                    <Badge className={cn("font-black uppercase tracking-widest px-4 py-1", config.color)}>
-                        {config.badge}
-                    </Badge>
-                </CardContent>
-            </Card>
+                        <div className="flex justify-center">
+                            <Badge className={cn("font-black uppercase tracking-[0.2em] px-6 py-2 rounded-full text-[10px] border-none shadow-lg", config.color, config.glow)}>
+                                {config.badge}
+                            </Badge>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
 
             {ticket.status === 'waiting' && (
                 <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-slate-900 border-slate-800">
-                        <CardContent className="p-6 text-center space-y-2">
-                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">Posição Atual</p>
-                            <p className="text-4xl font-black text-blue-500 italic">{ticket.real_position}º</p>
+                    <Card className="bg-slate-900/50 backdrop-blur-md border-slate-800/50 rounded-3xl overflow-hidden relative group">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-blue-600" />
+                        <CardContent className="p-6 text-center space-y-1">
+                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">Posição</p>
+                            <p className="text-4xl font-black text-slate-100 italic transition-colors group-hover:text-blue-500">{ticket.real_position}<span className="text-lg">º</span></p>
                         </CardContent>
                     </Card>
-                    <Card className="bg-slate-900 border-slate-800">
-                        <CardContent className="p-6 text-center space-y-2">
-                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">Espera Estimada</p>
-                            <p className="text-4xl font-black text-blue-500 italic">~{ticket.estimated_wait_minutes}<span className="text-lg">m</span></p>
+                    <Card className="bg-slate-900/50 backdrop-blur-md border-slate-800/50 rounded-3xl overflow-hidden relative group">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-blue-600" />
+                        <CardContent className="p-6 text-center space-y-1">
+                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">Tempo</p>
+                            <p className="text-4xl font-black text-slate-100 italic transition-colors group-hover:text-blue-500">~{ticket.estimated_wait_minutes}<span className="text-lg">m</span></p>
                         </CardContent>
                     </Card>
                 </div>
             )}
 
             {ticket.barbers && (
-                <Card className="bg-slate-900 border-slate-800">
-                    <CardHeader className="p-4 border-b border-slate-800">
-                        <CardTitle className="text-xs font-black uppercase tracking-widest text-slate-500">Seu Barbeiro</CardTitle>
+                <Card className="bg-slate-900/40 backdrop-blur-sm border-slate-800/50 rounded-3xl overflow-hidden">
+                    <CardHeader className="p-5 border-b border-slate-800/50 bg-slate-800/20">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Seu Artista</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-slate-800 overflow-hidden border border-slate-700">
-                            {ticket.barbers.photo_url ? (
-                                <img src={ticket.barbers.photo_url} alt={ticket.barbers.name} className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="flex items-center justify-center h-full text-slate-500">
-                                    <User size={24} />
-                                </div>
-                            )}
+                    <CardContent className="p-6 flex items-center gap-5">
+                        <div className="relative">
+                            <div className="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-full blur-[2px] opacity-40" />
+                            <div className="relative w-16 h-16 rounded-full bg-slate-800 overflow-hidden border-2 border-slate-700 shadow-xl">
+                                {ticket.barbers.photo_url ? (
+                                    <img src={ticket.barbers.photo_url} alt={ticket.barbers.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-slate-500">
+                                        <User size={32} />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <div>
-                            <p className="text-lg font-black text-slate-100 uppercase italic">{ticket.barbers.name}</p>
-                            <p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">Profissional selecionado</p>
+                            <p className="text-xl font-black text-slate-100 uppercase italic leading-none">{ticket.barbers.name}</p>
+                            <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest mt-1.5 italic">Profissional Designado</p>
                         </div>
                     </CardContent>
                 </Card>
             )}
 
             {ticket.status === 'waiting' && (
-                <div className="flex items-center gap-3 p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl">
-                    <AlertCircle className="text-blue-500 shrink-0" size={20} />
-                    <p className="text-[11px] text-blue-400 font-medium leading-tight italic">
-                        O tempo é estimado e pode variar de acordo com a duração dos atendimentos anteriores. Fique atento!
+                <div className="flex items-start gap-4 p-6 bg-blue-600/5 border border-blue-600/20 rounded-[2rem] relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full blur-3xl -mr-12 -mt-12" />
+                    <AlertCircle className="text-blue-500 shrink-0 mt-1" size={20} />
+                    <p className="text-[11px] text-slate-400 font-bold leading-relaxed italic uppercase tracking-tighter">
+                        O tempo é uma estimativa. Acompanhe a fila em tempo real e fique por perto para não perder sua vez!
                     </p>
                 </div>
             )}
         </div>
     );
 }
+
