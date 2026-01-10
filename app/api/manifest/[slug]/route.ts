@@ -9,10 +9,13 @@ export async function GET(
 ) {
     const { slug } = await params;
     const url = new URL(req.url);
-    const domain = `${url.protocol}//${url.host}`;
+
+    // Detecta o domínio correto para URLs absolutas (essencial para iPhone)
+    const proto = req.headers.get('x-forwarded-proto') || 'https';
+    const host = req.headers.get('host') || url.host;
+    const domain = `${proto}://${host}`;
 
     try {
-        // Usa o client público (anon) para buscar dados básicos do tenant
         const { data: tenant } = await supabase
             .from('tenants')
             .select('name, logo_url')
@@ -23,16 +26,18 @@ export async function GET(
 
         // Garantir que a logo seja uma URL absoluta para o iPhone
         let logo = tenant?.logo_url || `${domain}/icon-192.png`;
-        if (logo.startsWith('/')) {
-            logo = `${domain}${logo}`;
+        if (logo && !logo.startsWith('http')) {
+            logo = `${domain}${logo.startsWith('/') ? logo : '/' + logo}`;
         }
 
         const manifest = {
-            name: `${name} | Agendamento`,
+            name: `${name} | Fila Digital`,
             short_name: name,
             description: `Sistema de fila digital e agendamento para ${name}.`,
             start_url: `/${slug}`,
+            scope: `/`, // Escopo raiz para garantir que navegação interna funcione
             display: "standalone",
+            orientation: "portrait",
             background_color: "#020617",
             theme_color: "#020617",
             icons: [
@@ -60,7 +65,7 @@ export async function GET(
         return new NextResponse(JSON.stringify(manifest), {
             headers: {
                 'Content-Type': 'application/manifest+json',
-                'Cache-Control': 'public, max-age=60'
+                'Cache-Control': 'no-store, no-cache, must-revalidate' // Força renovação sempre
             }
         });
     } catch (e) {

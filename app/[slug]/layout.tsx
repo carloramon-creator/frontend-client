@@ -7,6 +7,7 @@ export async function generateMetadata(
     { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
     const { slug } = await params;
+    const version = Date.now(); // Cache busting
 
     // Busca dados básicos do tenant para o head (SEO e Apple Icon)
     const { data: tenant } = await supabase
@@ -20,7 +21,8 @@ export async function generateMetadata(
 
     return {
         title: `${name} | Fila Digital`,
-        manifest: `/api/manifest/${slug}`,
+        description: `Sistema de fila digital e agendamento para ${name}.`,
+        manifest: `/api/manifest/${slug}?v=${version}`,
         appleWebApp: {
             capable: true,
             statusBarStyle: "black-translucent",
@@ -28,6 +30,8 @@ export async function generateMetadata(
         },
         icons: {
             apple: logo,
+            shortcut: logo,
+            icon: logo,
         }
     };
 }
