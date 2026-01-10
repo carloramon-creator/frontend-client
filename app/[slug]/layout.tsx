@@ -17,8 +17,8 @@ export async function generateMetadata(
         .maybeSingle();
 
     const name = tenant?.name || '791 Barber';
-    // Se a logo sumir ou o banco falhar, usamos uma URL fixa confiável como fallback
-    let logo = tenant?.logo_url || 'https://raw.githubusercontent.com/carloramon-creator/frontend-client/main/public/icon-192.png';
+    // USAMOS UM CAMINHO RELATIVO PADRÃO QUE O IPHONE SEMPRE ACHA SE O BANCO FALHAR
+    let logo = tenant?.logo_url || '/favicon.ico';
 
     // Garantir URL absoluta para a logo (iPhone exige)
     if (logo && !logo.startsWith('http')) {
@@ -35,7 +35,7 @@ export async function generateMetadata(
 
     return {
         title: name,
-        description: `Fila Digital de ${name}`,
+        description: `Agendamento online para ${name}.`,
         manifest: `/api/manifest/${slug}`,
         appleWebApp: {
             capable: true,
@@ -60,5 +60,10 @@ export default function TenantLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return <>{children}</>;
+    return (
+        <>
+            {/* O Next.js já injetará as tags metadata automaticamente */}
+            {children}
+        </>
+    );
 }
