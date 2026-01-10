@@ -21,11 +21,12 @@ export async function generateMetadata(
     let logo = tenant?.logo_url || '/icon-192.png';
 
     // Garantir URL absoluta para a logo (iPhone exige)
-    if (logo.startsWith('/')) {
+    if (logo && !logo.startsWith('http')) {
         const headerList = await headers();
         const host = headerList.get('host') || '791barber.com';
         const proto = headerList.get('x-forwarded-proto') || 'https';
-        logo = `${proto}://${host}${logo}`;
+        const path = logo.startsWith('/') ? logo : `/${logo}`;
+        logo = `${proto}://${host}${path}`;
     }
 
     return {
@@ -41,6 +42,12 @@ export async function generateMetadata(
             apple: logo,
             shortcut: logo,
             icon: logo,
+            other: [
+                {
+                    rel: 'apple-touch-icon-precomposed',
+                    url: logo,
+                },
+            ],
         }
     };
 }

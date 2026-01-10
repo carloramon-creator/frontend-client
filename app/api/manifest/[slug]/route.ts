@@ -25,9 +25,12 @@ export async function GET(
         const name = tenant?.name || '791 Barber';
 
         // Garantir que a logo seja uma URL absoluta para o iPhone
-        let logo = tenant?.logo_url || `${domain}/icon-192.png`;
+        let logo = tenant?.logo_url || '/icon-192.png';
         if (logo && !logo.startsWith('http')) {
-            logo = `${domain}${logo.startsWith('/') ? logo : '/' + logo}`;
+            const host = req.headers.get('host') || url.host;
+            const proto = req.headers.get('x-forwarded-proto') || 'https';
+            const path = logo.startsWith('/') ? logo : `/${logo}`;
+            logo = `${proto}://${host}${path}`;
         }
 
         const manifest = {
