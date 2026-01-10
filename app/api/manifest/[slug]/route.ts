@@ -46,6 +46,12 @@ export async function GET(
             icons: [
                 {
                     "src": logo,
+                    "sizes": "180x180",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": logo,
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "any"
