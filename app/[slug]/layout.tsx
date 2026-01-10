@@ -8,9 +8,8 @@ export async function generateMetadata(
     { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
     const { slug } = await params;
-    const version = Date.now(); // Cache busting
 
-    // Busca dados básicos do tenant para o head (SEO e Apple Icon)
+    // Busca dados básicos do tenant
     const { data: tenant } = await supabase
         .from('tenants')
         .select('name, logo_url')
@@ -22,20 +21,21 @@ export async function generateMetadata(
 
     // Garantir URL absoluta para a logo (iPhone exige)
     if (logo && !logo.startsWith('http')) {
-        const headerList = await headers();
-        const host = headerList.get('host') || '791barber.com';
-        const proto = headerList.get('x-forwarded-proto') || 'https';
-        const path = logo.startsWith('/') ? logo : `/${logo}`;
-        logo = `${proto}://${host}${path}`;
+        try {
+            const headerList = await headers();
+            const host = headerList.get('host') || '791barber.com';
+            const proto = headerList.get('x-forwarded-proto') || 'https';
+            const path = logo.startsWith('/') ? logo : `/${logo}`;
+            logo = `${proto}://${host}${path}`;
+        } catch (e) {
+            logo = `https://791barber.com${logo.startsWith('/') ? logo : '/' + logo}`;
+        }
     }
 
-    // Cache busting para o ícone
-    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=${version}`;
-
     return {
-        title: `${name} | Fila Digital`,
-        description: `Consulte sua posição na fila da ${name} em tempo real.`,
-        manifest: `/api/manifest/${slug}?v=${version}`,
+        title: name, // Título limpo para o ícone
+        description: `Agendamento online para ${name}.`,
+        manifest: `/api/manifest/${slug}`,
         appleWebApp: {
             capable: true,
             statusBarStyle: "black-translucent",
@@ -43,21 +43,18 @@ export async function generateMetadata(
         },
         icons: {
             apple: [
-                { url: iconUrl, sizes: '180x180' },
-                { url: iconUrl, sizes: '152x152' },
-                { url: iconUrl, sizes: '167x167' },
-                { url: iconUrl, sizes: '120x120' },
+                { url: logo, sizes: '180x180', type: 'image/png' },
             ],
-            shortcut: iconUrl,
-            icon: iconUrl,
+            shortcut: logo,
+            icon: logo,
             other: [
                 {
-                    rel: 'apple-touch-icon-precomposed',
-                    url: iconUrl,
+                    rel: 'apple-touch-icon',
+                    url: logo,
                 },
                 {
-                    rel: 'mask-icon',
-                    url: iconUrl,
+                    rel: 'apple-touch-icon-precomposed',
+                    url: logo,
                 }
             ],
         }
@@ -69,5 +66,10 @@ export default function TenantLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return <>{children}</>;
+    return (
+        <>
+            {/* O Next.js já injetará as tags metadata, mas o layout permite envolver os filhos */}
+            {children}
+        </>
+    );
 }
