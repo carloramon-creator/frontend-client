@@ -33,37 +33,39 @@ export async function GET(
             logo = `${proto}://${host}${path}`;
         }
 
+        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=${Date.now()}`;
+
         const manifest = {
             name: `${name} | Fila Digital`,
             short_name: name,
-            description: `Sistema de fila digital e agendamento para ${name}.`,
+            description: `Acompanhe seu lugar na fila da ${name} em tempo real.`,
             start_url: `/${slug}`,
-            scope: `/${slug}/`, // Escopo específico para esta barbearia 
+            scope: `/${slug}/`,
             display: "standalone",
             orientation: "portrait",
             background_color: "#020617",
             theme_color: "#020617",
             icons: [
                 {
-                    "src": logo,
+                    "src": iconUrl,
                     "sizes": "180x180",
                     "type": "image/png",
                     "purpose": "any"
                 },
                 {
-                    "src": logo,
+                    "src": iconUrl,
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "any"
                 },
                 {
-                    "src": logo,
+                    "src": iconUrl,
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "maskable"
                 },
                 {
-                    "src": logo,
+                    "src": iconUrl,
                     "sizes": "512x512",
                     "type": "image/png",
                     "purpose": "any"

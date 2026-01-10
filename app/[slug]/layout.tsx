@@ -29,9 +29,12 @@ export async function generateMetadata(
         logo = `${proto}://${host}${path}`;
     }
 
+    // Cache busting para o ícone
+    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=${version}`;
+
     return {
         title: `${name} | Fila Digital`,
-        description: `Sistema de fila digital e agendamento para ${name}.`,
+        description: `Consulte sua posição na fila da ${name} em tempo real.`,
         manifest: `/api/manifest/${slug}?v=${version}`,
         appleWebApp: {
             capable: true,
@@ -39,14 +42,23 @@ export async function generateMetadata(
             title: name,
         },
         icons: {
-            apple: logo,
-            shortcut: logo,
-            icon: logo,
+            apple: [
+                { url: iconUrl, sizes: '180x180' },
+                { url: iconUrl, sizes: '152x152' },
+                { url: iconUrl, sizes: '167x167' },
+                { url: iconUrl, sizes: '120x120' },
+            ],
+            shortcut: iconUrl,
+            icon: iconUrl,
             other: [
                 {
                     rel: 'apple-touch-icon-precomposed',
-                    url: logo,
+                    url: iconUrl,
                 },
+                {
+                    rel: 'mask-icon',
+                    url: iconUrl,
+                }
             ],
         }
     };

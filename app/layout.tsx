@@ -3,16 +3,8 @@ import { ClientLayoutWrapper } from "@/components/layout/client-wrapper";
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "791 Barber | Agendamento",
+  title: "791 Barber",
   description: "Sistema de fila digital e agendamento",
-  // O manifest é definido dinamicamente nas rotas [slug]
-  // Aqui deixamos apenas o padrão se alguém entrar na home limpa
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "791 Barber"
-  }
 };
 
 export default function RootLayout({
