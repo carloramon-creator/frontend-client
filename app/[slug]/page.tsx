@@ -48,18 +48,18 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
       // Ignora erro de parse silenciosamente
     }
 
-    // Load existing client data
-    const savedName = localStorage.getItem('791_client_name');
-    const savedPhone = localStorage.getItem('791_client_phone');
-    const savedCpf = localStorage.getItem('791_client_cpf');
-    const savedPhoto = localStorage.getItem('791_client_photo');
+    // Load existing client data (SCOPED BY SLUG)
+    const savedName = localStorage.getItem(`791_${slug}_client_name`);
+    const savedPhone = localStorage.getItem(`791_${slug}_client_phone`);
+    const savedCpf = localStorage.getItem(`791_${slug}_client_cpf`);
+    const savedPhoto = localStorage.getItem(`791_${slug}_client_photo`);
 
     if (savedName) setClientName(savedName);
     if (savedPhone) setClientPhone(savedPhone);
     if (savedCpf) setClientCpf(savedCpf);
     if (savedPhoto) setClientPhoto(savedPhoto);
 
-    // If already has name and phone, skip to barber selection (Step 3)
+    // If already has name and phone for THIS shop, skip to barber selection (Step 3)
     if (savedName && savedPhone) {
       setStep(3);
     }
@@ -101,10 +101,10 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
 
     setIsSubmitting(true);
     try {
-      localStorage.setItem('791_client_name', clientName);
-      localStorage.setItem('791_client_phone', clientPhone);
-      localStorage.setItem('791_client_cpf', clientCpf);
-      if (clientPhoto) localStorage.setItem('791_client_photo', clientPhoto);
+      localStorage.setItem(`791_${slug}_client_name`, clientName);
+      localStorage.setItem(`791_${slug}_client_phone`, clientPhone);
+      localStorage.setItem(`791_${slug}_client_cpf`, clientCpf);
+      if (clientPhoto) localStorage.setItem(`791_${slug}_client_photo`, clientPhoto);
 
       const res = await Api.enterQueueForBarber(
         slug,
@@ -355,7 +355,10 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
                 <Button
                   variant="ghost"
                   onClick={() => {
-                    localStorage.clear();
+                    localStorage.removeItem(`791_${slug}_client_name`);
+                    localStorage.removeItem(`791_${slug}_client_phone`);
+                    localStorage.removeItem(`791_${slug}_client_cpf`);
+                    localStorage.removeItem(`791_${slug}_client_photo`);
                     window.location.reload();
                   }}
                   className="flex-1 text-slate-700 font-bold uppercase text-[8px] tracking-[0.2em] h-auto"

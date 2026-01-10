@@ -43,7 +43,18 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         {tenant?.name && <meta name="apple-mobile-web-app-title" content={tenant.name} />}
         {tenant?.logo_url && <link rel="apple-touch-icon" href={tenant.logo_url} />}
-        <link rel="manifest" href="/manifest.json" />
+
+        {/* Manifest Dinâmico por Barbearia */}
+        {(() => {
+          if (typeof window !== 'undefined') {
+            const parts = window.location.pathname.split('/');
+            const slug = parts[1]; // O slug é o primeiro segmento após a barra
+            if (slug && slug !== 'fila' && !slug.includes('.')) {
+              return <link rel="manifest" href={`/api/manifest/${slug}`} />;
+            }
+          }
+          return <link rel="manifest" href="/manifest.json" />;
+        })()}
       </head>
       <body className="antialiased selection:bg-blue-500/30 bg-slate-950">
         <div className="min-h-screen flex flex-col">
