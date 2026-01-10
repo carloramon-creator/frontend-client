@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { supabase } from '@/lib/supabase-client';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,15 @@ export async function generateMetadata(
         .maybeSingle();
 
     const name = tenant?.name || '791 Barber';
-    const logo = tenant?.logo_url || '/icon-192.png';
+    let logo = tenant?.logo_url || '/icon-192.png';
+
+    // Garantir URL absoluta para a logo (iPhone exige)
+    if (logo.startsWith('/')) {
+        const headerList = await headers();
+        const host = headerList.get('host') || '791barber.com';
+        const proto = headerList.get('x-forwarded-proto') || 'https';
+        logo = `${proto}://${host}${logo}`;
+    }
 
     return {
         title: `${name} | Fila Digital`,
