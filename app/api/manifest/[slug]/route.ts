@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase-client';
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mfbiwvhxztejuzcasclv.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+export const dynamic = 'force-dynamic';
 
 export async function GET(
     req: Request,
@@ -15,13 +12,15 @@ export async function GET(
     const domain = `${url.protocol}//${url.host}`;
 
     try {
-        const { data: tenant } = await supabaseAdmin
+        // Usa o client público (anon) para buscar dados básicos do tenant
+        const { data: tenant } = await supabase
             .from('tenants')
             .select('name, logo_url')
             .ilike('slug', slug)
             .maybeSingle();
 
         const name = tenant?.name || '791 Barber';
+
         // Garantir que a logo seja uma URL absoluta para o iPhone
         let logo = tenant?.logo_url || `${domain}/icon-192.png`;
         if (logo.startsWith('/')) {
@@ -65,6 +64,7 @@ export async function GET(
             }
         });
     } catch (e) {
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+        console.error('[MANIFEST ERROR]', e);
+        return NextResponse.json({ error: 'Failed to generate manifest' }, { status: 500 });
     }
 }
