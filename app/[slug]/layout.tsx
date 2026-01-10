@@ -8,7 +8,6 @@ export async function generateMetadata(
     { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
     const { slug } = await params;
-    const version = Date.now();
 
     // Busca dados básicos do tenant
     const { data: tenant } = await supabase
@@ -18,9 +17,10 @@ export async function generateMetadata(
         .maybeSingle();
 
     const name = tenant?.name || '791 Barber';
-    let logo = tenant?.logo_url || '/icon-192.png';
+    // Se a logo sumir ou o banco falhar, usamos uma URL fixa confiável como fallback
+    let logo = tenant?.logo_url || 'https://raw.githubusercontent.com/carloramon-creator/frontend-client/main/public/icon-192.png';
 
-    // Garantir URL absoluta para a logo (iPhone exige URLs completas para não falhar no ícone)
+    // Garantir URL absoluta para a logo (iPhone exige)
     if (logo && !logo.startsWith('http')) {
         try {
             const headerList = await headers();
@@ -33,13 +33,10 @@ export async function generateMetadata(
         }
     }
 
-    // Logo com versionamento para forçar o Safari a baixar a imagem nova
-    const finalIcon = `${logo}${logo.includes('?') ? '&' : '?'}v=${version}`;
-
     return {
         title: name,
         description: `Fila Digital de ${name}`,
-        manifest: `/api/manifest/${slug}?v=${version}`,
+        manifest: `/api/manifest/${slug}`,
         appleWebApp: {
             capable: true,
             statusBarStyle: "black-translucent",
@@ -47,19 +44,12 @@ export async function generateMetadata(
         },
         icons: {
             apple: [
-                { url: finalIcon, sizes: '180x180' },
-                { url: finalIcon, sizes: '152x152' },
-                { url: finalIcon, sizes: '120x120' },
+                { url: logo, sizes: '180x180' },
             ],
+            shortcut: logo,
             icon: [
-                { url: finalIcon, sizes: '192x192' },
-            ],
-            shortcut: finalIcon,
-            other: [
-                {
-                    rel: 'apple-touch-icon-precomposed',
-                    url: finalIcon,
-                }
+                { url: logo, sizes: '192x192' },
+                { url: logo, sizes: '512x512' },
             ],
         },
     };
