@@ -45,16 +45,19 @@ export default function RootLayout({
         {tenant?.logo_url && <link rel="apple-touch-icon" href={tenant.logo_url} />}
 
         {/* Manifest Dinâmico por Barbearia */}
-        {(() => {
-          if (typeof window !== 'undefined') {
-            const parts = window.location.pathname.split('/');
-            const slug = parts[1]; // O slug é o primeiro segmento após a barra
-            if (slug && slug !== 'fila' && !slug.includes('.')) {
-              return <link rel="manifest" href={`/api/manifest/${slug}`} />;
-            }
-          }
-          return <link rel="manifest" href="/manifest.json" />;
-        })()}
+        <link rel="manifest" href="/manifest.json" />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var parts = window.location.pathname.split('/');
+              var slug = parts[1];
+              if (slug && slug !== 'fila' && !slug.includes('.')) {
+                var manifestLink = document.querySelector('link[rel="manifest"]');
+                if (manifestLink) manifestLink.href = '/api/manifest/' + slug;
+              }
+            })();
+          `
+        }} />
       </head>
       <body className="antialiased selection:bg-blue-500/30 bg-slate-950">
         <div className="min-h-screen flex flex-col">

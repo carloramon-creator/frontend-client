@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { supabase } from '@/lib/supabase-client';
 
 export async function GET(
     req: Request,
@@ -9,7 +9,7 @@ export async function GET(
 
     try {
         // Busca a barbearia pelo slug para pegar o nome e logo corretos
-        const { data: tenant } = await supabaseAdmin
+        const { data: tenant } = await supabase
             .from('tenants')
             .select('name, logo_url')
             .ilike('slug', slug)
