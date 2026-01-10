@@ -30,7 +30,23 @@ export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Load existing data from localStorage if available
+    // 1. CARREGAMENTO INSTANTÂNEO (CACHE FIRST)
+    // Tenta carregar informações da barbearia do cache para evitar "flash" de loading
+    try {
+      const cachedShopInfo = localStorage.getItem('791_shop_info');
+      if (cachedShopInfo) {
+        const parsed = JSON.parse(cachedShopInfo);
+        if (parsed && parsed.name) {
+          setShopInfo(parsed);
+          // Se temos cache, desativamos o loading visual IMEDIATAMENTE
+          setLoading(false);
+        }
+      }
+    } catch (e) {
+      // Ignora erro de parse silenciosamente
+    }
+
+    // Load existing client data
     const savedName = localStorage.getItem('791_client_name');
     const savedPhone = localStorage.getItem('791_client_phone');
     const savedCpf = localStorage.getItem('791_client_cpf');
@@ -46,20 +62,25 @@ export default function HomePage() {
       setStep(3);
     }
 
+    // 2. REVALIDAÇÃO (NETWORK)
+    // Busca dados atualizados da API em background
     async function load() {
       try {
         const response = await Api.getQueueStatus('');
         // New structure: { barbers, tenant }
         setBarbers(response.barbers || []);
-        setShopInfo(response.tenant || null);
 
-        // Push branding to layout via custom event or just let it stay here if layout handles it
         if (response.tenant) {
+          setShopInfo(response.tenant);
+          // Atualiza cache para próxima vez
+          localStorage.setItem('791_shop_info', JSON.stringify(response.tenant));
+
           window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: response.tenant }));
         }
       } catch (err) {
         console.error(err);
       } finally {
+        // Garante que loading some mesmo se não tinha cache e deu erro
         setLoading(false);
       }
     }
