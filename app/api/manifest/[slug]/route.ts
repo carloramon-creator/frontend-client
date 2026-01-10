@@ -1,25 +1,35 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase-client';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mfbiwvhxztejuzcasclv.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ slug: string }> }
 ) {
     const { slug } = await params;
+    const url = new URL(req.url);
+    const domain = `${url.protocol}//${url.host}`;
 
     try {
-        // Busca a barbearia pelo slug para pegar o nome e logo corretos
-        const { data: tenant } = await supabase
+        const { data: tenant } = await supabaseAdmin
             .from('tenants')
             .select('name, logo_url')
             .ilike('slug', slug)
             .maybeSingle();
 
         const name = tenant?.name || '791 Barber';
-        const logo = tenant?.logo_url || '/icon-192.png';
+        // Garantir que a logo seja uma URL absoluta para o iPhone
+        let logo = tenant?.logo_url || `${domain}/icon-192.png`;
+        if (logo.startsWith('/')) {
+            logo = `${domain}${logo}`;
+        }
 
         const manifest = {
-            name: `${name} | Fila Digital`,
+            name: `${name} | Agendamento`,
             short_name: name,
             description: `Sistema de fila digital e agendamento para ${name}.`,
             start_url: `/${slug}`,
@@ -35,26 +45,26 @@ export async function GET(
                 },
                 {
                     "src": logo,
-                    "sizes": "512x512",
+                    "sizes": "192x192",
                     "type": "image/png",
-                    "purpose": "any"
+                    "purpose": "maskable"
                 },
                 {
                     "src": logo,
-                    "sizes": "1024x1024",
+                    "sizes": "512x512",
                     "type": "image/png",
                     "purpose": "any"
                 }
             ]
         };
 
-        return NextResponse.json(manifest, {
+        return new NextResponse(JSON.stringify(manifest), {
             headers: {
                 'Content-Type': 'application/manifest+json',
-                'Cache-Control': 'public, max-age=3600'
+                'Cache-Control': 'public, max-age=60'
             }
         });
     } catch (e) {
-        return NextResponse.json({ error: 'Failed to generate manifest' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }
