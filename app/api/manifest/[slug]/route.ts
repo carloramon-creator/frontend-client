@@ -35,7 +35,7 @@ export async function GET(
             short_name: name,
             description: `Sistema de fila digital e agendamento para ${name}.`,
             start_url: `/${slug}`,
-            scope: `/`, // Escopo raiz para garantir que navegação interna funcione
+            scope: `/${slug}/`, // Escopo específico para esta barbearia 
             display: "standalone",
             orientation: "portrait",
             background_color: "#020617",
