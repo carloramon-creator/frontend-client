@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import { Api } from './lib/api';
-import { Loader2, User, ChevronRight, Scissors, Clock, Calendar, CheckCircle2 } from 'lucide-react';
+import { User, ChevronRight, Scissors, Clock, CheckCircle2 } from 'lucide-react';
 import { AppointmentWizard } from './components/AppointmentWizard';
 import { RegistrationForm } from './components/RegistrationForm';
 
@@ -36,6 +36,28 @@ function ErrorScreen({ slug }: { slug: string }) {
     );
 }
 
+function updateMetadata(tenant: any) {
+    if (!tenant) return;
+
+    // Atualiza Título
+    document.title = `${tenant.name} | 791 Barber`;
+
+    const version = '205'; // Cache buster consistente
+    const iconUrl = tenant.logo_url ? `${tenant.logo_url}${tenant.logo_url.includes('?') ? '&' : '?'}v=${version}` : `/icon-192.png?v=${version}`;
+
+    // Atualiza Favicon
+    const favicon = document.getElementById('favicon') as HTMLLinkElement;
+    if (favicon) favicon.href = iconUrl;
+
+    // Atualiza Apple Touch Icon (iPhone)
+    const appleIcon = document.getElementById('apple-icon') as HTMLLinkElement;
+    if (appleIcon) appleIcon.href = iconUrl;
+
+    // Atualiza nome do web app
+    const metaTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if (metaTitle) metaTitle.setAttribute('content', tenant.name);
+}
+
 // --- PÁGINA PRINCIPAL (ROTEADOR DE FLUXO) ---
 
 function ShopPage() {
@@ -64,6 +86,9 @@ function ShopPage() {
 
             const response = await Api.getShopInfo(slug!);
             setShopInfo(response.tenant);
+
+            // ATUALIZAÇÃO DE METADADOS (ÍCONES E TÍTULO)
+            updateMetadata(response.tenant);
 
             // LÓGICA DE DETECÇÃO DE CLIENTE
             let detectedClient = null;

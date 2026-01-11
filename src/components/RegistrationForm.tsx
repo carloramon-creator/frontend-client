@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Api } from '../lib/api';
 import { User, Phone, FileText, Camera, Loader2, Check } from 'lucide-react';
 
 interface RegistrationFormProps {
@@ -10,7 +9,6 @@ interface RegistrationFormProps {
 
 export function RegistrationForm({ slug, clientId, onComplete }: RegistrationFormProps) {
     const [loading, setLoading] = useState(false);
-    const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         name: '',
         phone: '',

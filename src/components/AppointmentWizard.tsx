@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Api } from '../lib/api';
 import {
-    Calendar,
-    Clock,
     ChevronRight,
     ChevronLeft,
-    Check,
     User,
     Scissors,
     Loader2,
     CalendarCheck,
-    CheckCircle2
 } from 'lucide-react';
 import { format, addDays, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -42,7 +38,6 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [availableSlots, setAvailableSlots] = useState<any[]>([]);
-    const [loadingSlots, setLoadingSlots] = useState(false);
 
     // Initial load
     useEffect(() => {
@@ -72,7 +67,6 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
     }, [step, selectedDate, selectedBarber, selectedServices]);
 
     const fetchAvailability = async () => {
-        setLoadingSlots(true);
         setAvailableSlots([]);
         try {
             const duration = selectedServices.reduce((acc, s) => acc + (s.duration_minutes || 30), 0);
@@ -81,8 +75,6 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
             setAvailableSlots(slots || []);
         } catch (err) {
             console.error(err);
-        } finally {
-            setLoadingSlots(false);
         }
     };
 
