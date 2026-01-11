@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Sparkles, Loader2, Camera, Fingerprint, Phone, CreditCard, ChevronRight, Check } from 'lucide-react';
+import { Users, Sparkles, Loader2, Camera, Phone, CreditCard, ChevronRight, Check, Calendar, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InstallPWA } from '@/components/pwa/install-button';
 
@@ -17,10 +17,16 @@ export default function HomePage() {
   const router = useRouter();
   const [barbers, setBarbers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [shopInfo, setShopInfo] = useState<{ name: string; logo_url?: string } | null>(null);
+  const [shopInfo, setShopInfo] = useState<{
+    name: string;
+    logo_url?: string;
+    module_queue_enabled?: boolean;
+    module_appointments_enabled?: boolean;
+  } | null>(null);
 
   // Registration State
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // Start at Step 0 (Flow Choice)
+  const [flow, setFlow] = useState<'queue' | 'appointment' | null>(null);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [clientCpf, setClientCpf] = useState('');
@@ -64,9 +70,20 @@ export default function HomePage() {
     if (savedCpf) setClientCpf(savedCpf);
     if (savedPhoto) setClientPhoto(savedPhoto);
 
-    // If already has name and phone, skip to barber selection (Step 3)
+    // If already has name and phone, decide based on modules
     if (savedName && savedPhone) {
-      setStep(3);
+      // Background load will refine this, but we can preset if we have cached shopinfo
+      if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
+        setStep(0);
+      } else if (shopInfo?.module_appointments_enabled && !shopInfo?.module_queue_enabled) {
+        setFlow('appointment');
+        setStep(4);
+      } else {
+        setFlow('queue');
+        setStep(3);
+      }
+    } else {
+      setStep(1); // New user starts at identification
     }
 
     // 2. REVALIDAÇÃO (NETWORK)
@@ -188,6 +205,61 @@ export default function HomePage() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 space-y-4">
+        {step === 0 && (
+          <section className="space-y-4 flex flex-col h-full animate-in fade-in zoom-in duration-500">
+            <div className="space-y-1 text-center py-4">
+              <h2 className="text-3xl font-black text-slate-100 uppercase leading-tight">
+                Como deseja <span className="text-blue-500">ser atendido?</span>
+              </h2>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Escolha a melhor opção para hoje</p>
+            </div>
+
+            <div className="grid gap-4 mt-4">
+              {(shopInfo?.module_queue_enabled || shopInfo === null) && (
+                <div
+                  onClick={() => {
+                    setFlow('queue');
+                    setStep(3);
+                  }}
+                  className="bg-slate-900 border-2 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                      <Users size={28} />
+                    </div>
+                    <ChevronRight className="text-slate-700 group-hover:text-blue-500 group-hover:translate-x-1" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-100 uppercase">Entrar na Fila</h3>
+                    <p className="text-slate-500 text-xs font-medium">Atendimento imediato por ordem de chegada.</p>
+                  </div>
+                </div>
+              )}
+
+              {(shopInfo?.module_appointments_enabled || shopInfo === null) && (
+                <div
+                  onClick={() => {
+                    setFlow('appointment');
+                    setStep(4); // Start appointment wizard
+                  }}
+                  className="bg-slate-900 border-2 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                      <Calendar size={28} />
+                    </div>
+                    <ChevronRight className="text-slate-700 group-hover:text-emerald-500 group-hover:translate-x-1" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-100 uppercase">Agendar Horário</h3>
+                    <p className="text-slate-500 text-xs font-medium">Escolha o melhor dia e hora para você.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {step === 1 && (
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
@@ -306,7 +378,19 @@ export default function HomePage() {
                 Voltar
               </Button>
               <Button
-                onClick={() => clientPhone.length >= 14 && setStep(3)}
+                onClick={() => {
+                  if (clientPhone.length >= 14) {
+                    if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
+                      setStep(0);
+                    } else if (shopInfo?.module_appointments_enabled) {
+                      setFlow('appointment');
+                      setStep(4);
+                    } else {
+                      setFlow('queue');
+                      setStep(3);
+                    }
+                  }
+                }}
                 disabled={clientPhone.length < 14}
                 className="flex-[2] h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg"
               >
@@ -368,6 +452,35 @@ export default function HomePage() {
                   Limpar dados
                 </Button>
               </div>
+            </div>
+          </section>
+        )}
+
+        {step === 4 && (
+          <section className="space-y-4 flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-slate-100 uppercase">
+                Agendar <span className="text-emerald-500">Horário</span>
+              </h2>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Selecione o serviço e horário</p>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center space-y-4 py-8">
+              <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 border-2 border-emerald-500/20">
+                <Calendar size={40} />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-slate-300 font-bold">Módulo de Agendamento</p>
+                <p className="text-slate-500 text-sm max-w-[200px]">Selecione o serviço para ver horários disponíveis.</p>
+              </div>
+
+              <Button
+                onClick={() => setStep(0)}
+                variant="outline"
+                className="mt-4 border-slate-800 text-slate-400 font-black uppercase italic rounded-2xl"
+              >
+                Voltar para opções
+              </Button>
             </div>
           </section>
         )}

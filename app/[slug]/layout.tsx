@@ -33,7 +33,7 @@ export async function generateMetadata(
         }
     }
 
-    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=100`;
+    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=150`;
 
     return {
         title: name,
