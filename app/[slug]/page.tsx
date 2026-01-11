@@ -527,3 +527,16 @@ function HomePageContent({ slug }: { slug: string }) {
     </div>
   );
 }
+
+export default function HomePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    }>
+      <HomePageContent slug={slug} />
+    </Suspense>
+  );
+}
