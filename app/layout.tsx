@@ -7,12 +7,21 @@ import { headers } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
-  // Busca o primeiro tenant cadastrado (fallback padrão)
-  const { data: tenant } = await supabase
+  // Busca a barbearia principal (slug '791') ou a primeira disponível
+  let { data: tenant } = await supabase
     .from('tenants')
     .select('name, logo_url')
-    .limit(1)
+    .eq('slug', '791')
     .maybeSingle();
+
+  if (!tenant) {
+    const { data: firstTenant } = await supabase
+      .from('tenants')
+      .select('name, logo_url')
+      .limit(1)
+      .maybeSingle();
+    tenant = firstTenant;
+  }
 
   const name = tenant?.name || '791 Barber';
   let logo = tenant?.logo_url || '/favicon.ico';

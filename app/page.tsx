@@ -36,12 +36,14 @@ export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // 0. SMART REDIRECT
+    // 0. SMART REDIRECT - REMOVIDO PARA EVITAR CONFLITO NO IPHONE
+    /* 
     const lastSlug = localStorage.getItem('791_last_slug');
     if (lastSlug && lastSlug !== 'null') {
       router.push(`/${lastSlug}`);
       return;
     }
+    */
 
     // 1. CARREGAMENTO INSTANTÂNEO (CACHE FIRST)
     // Tenta carregar informações da barbearia do cache para evitar "flash" de loading
