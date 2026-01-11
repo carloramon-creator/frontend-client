@@ -54,10 +54,6 @@ export async function generateMetadata(
                 { url: iconUrl, sizes: '512x512', type: 'image/png' },
             ],
         },
-        other: {
-            'apple-touch-icon': iconUrl,
-            'apple-touch-icon-precomposed': iconUrl,
-        }
     };
 }
 
