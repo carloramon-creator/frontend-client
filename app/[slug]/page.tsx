@@ -124,6 +124,7 @@ function HomePageContent({ slug }: { slug: string }) {
           const tenant = response.tenant;
           setShopInfo(tenant);
           localStorage.setItem('791_shop_info', JSON.stringify(tenant));
+          localStorage.setItem('791_last_slug', slug);
 
           // LOGICA DE REDIRECIONAMENTO INTELIGENTE
           const name = identifiedData?.name || localStorage.getItem(`791_${slug}_client_name`);

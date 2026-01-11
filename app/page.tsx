@@ -84,6 +84,13 @@ export default function HomePage() {
         setLoading(false);
       }
     }
+    // 4. REDIRECIONAMENTO INTELIGENTE (NOVA LOGICA)
+    const lastSlug = localStorage.getItem('791_last_slug');
+    if (lastSlug && lastSlug !== '') {
+      router.replace(`/${lastSlug}`);
+      return;
+    }
+
     load();
   }, []);
 

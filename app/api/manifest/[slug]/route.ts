@@ -33,7 +33,7 @@ export async function GET(
             logo = `${proto}://${host}${path}`;
         }
 
-        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=${Date.now()}`;
+        const iconUrl = logo; // Remove timestamp for more stable caching on iPhone
 
         const manifest = {
             name: `${name} | Fila Digital`,
