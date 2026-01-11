@@ -35,7 +35,7 @@ export async function GET(
             logo = `${proto}://${host}${path}`;
         }
 
-        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=150`;
+        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=200`;
         console.log(`[MANIFEST] Found tenant: ${tenant?.name}, logo: ${iconUrl}`);
 
         const manifest = {
