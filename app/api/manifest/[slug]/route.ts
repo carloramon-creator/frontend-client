@@ -15,6 +15,8 @@ export async function GET(
     const host = req.headers.get('host') || url.host;
     const domain = `${proto}://${host}`;
 
+    console.log(`[MANIFEST] Generating for slug: ${slug}`);
+
     try {
         const { data: tenant } = await supabase
             .from('tenants')
@@ -33,7 +35,8 @@ export async function GET(
             logo = `${proto}://${host}${path}`;
         }
 
-        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=2`;
+        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=100`;
+        console.log(`[MANIFEST] Found tenant: ${tenant?.name}, logo: ${iconUrl}`);
 
         const manifest = {
             name: `${name} | Fila Digital`,

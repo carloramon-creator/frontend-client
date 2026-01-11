@@ -33,7 +33,7 @@ export async function generateMetadata(
         }
     }
 
-    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=2`;
+    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=100`;
 
     return {
         title: name,
@@ -46,25 +46,30 @@ export async function generateMetadata(
         },
         icons: {
             apple: [
-                { url: iconUrl, sizes: '180x180' },
+                { url: iconUrl, sizes: '180x180', type: 'image/png' },
             ],
             shortcut: iconUrl,
             icon: [
-                { url: iconUrl, sizes: '192x192' },
-                { url: iconUrl, sizes: '512x512' },
+                { url: iconUrl, sizes: '192x192', type: 'image/png' },
+                { url: iconUrl, sizes: '512x512', type: 'image/png' },
             ],
         },
+        other: {
+            'apple-touch-icon': iconUrl,
+            'apple-touch-icon-precomposed': iconUrl,
+        }
     };
 }
 
 export default function TenantLayout({
     children,
+    params,
 }: {
     children: React.ReactNode;
+    params: Promise<{ slug: string }>;
 }) {
     return (
         <>
-            {/* O Next.js já injetará as tags metadata automaticamente */}
             {children}
         </>
     );

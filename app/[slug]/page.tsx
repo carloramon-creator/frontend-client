@@ -277,8 +277,8 @@ function HomePageContent({ slug }: { slug: string }) {
             </div>
 
             <div className="grid gap-4 mt-4">
-              {/* Fallback para sempre mostrar pelo menos a Fila se nada estiver habilitado explicitamente */}
-              {(shopInfo?.module_queue_enabled || (!shopInfo?.module_queue_enabled && !shopInfo?.module_appointments_enabled) || shopInfo === null) && (
+              {/* Fallback para sempre mostrar os módulos se nada estiver habilitado explicitamente ou estiver carregando */}
+              {(shopInfo?.module_queue_enabled || shopInfo === null) && (
                 <div
                   onClick={() => {
                     setFlow('queue');
@@ -299,7 +299,7 @@ function HomePageContent({ slug }: { slug: string }) {
                 </div>
               )}
 
-              {(shopInfo?.module_appointments_enabled) && (
+              {(shopInfo?.module_appointments_enabled || shopInfo === null) && (
                 <div
                   onClick={() => {
                     setFlow('appointment');
