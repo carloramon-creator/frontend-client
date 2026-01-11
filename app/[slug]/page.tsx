@@ -283,7 +283,7 @@ function HomePageContent({ slug }: { slug: string }) {
             </div>
             <div className="space-y-1">
               <h2 className="text-xl font-bold text-slate-100 uppercase">Ops! Nada por aqui.</h2>
-              <p className="text-slate-500 text-sm max-w-xs">Não encontramos nenhuma barbearia com este link. Verifique o endereço e tente novamente.</p>
+              <p className="text-slate-500 text-sm max-w-xs">Não encontramos nenhuma barbearia com o link <strong>"/{slug}"</strong>. Verifique o endereço e tente novamente.</p>
             </div>
             <Button
               variant="outline"
