@@ -13,11 +13,18 @@ export function ClientLayoutWrapper({
     useEffect(() => {
         // Load from cache instantly to avoid generic branding
         try {
-            const cached = localStorage.getItem('791_shop_info');
-            if (cached) {
-                const parsed = JSON.parse(cached);
-                if (parsed && parsed.name) {
-                    setTenant(parsed);
+            // Priority 1: Current active tenant from event (handled below)
+            // Priority 2: Last known tenant name from localStorage based on URL slug
+            const pathParts = window.location.pathname.split('/');
+            const currentSlug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+
+            if (currentSlug && currentSlug !== 'null' && currentSlug !== '') {
+                const cached = localStorage.getItem(`791_shop_info_${currentSlug}`);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (parsed && parsed.name) {
+                        setTenant(parsed);
+                    }
                 }
             }
         } catch (e) { }
@@ -30,7 +37,8 @@ export function ClientLayoutWrapper({
         };
         window.addEventListener('791_tenant_found', handleTenant);
 
-        // Register Service Worker
+        /* 
+        // Desativado temporariamente para evitar cache de código obsoleto
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then(reg => {
@@ -40,6 +48,7 @@ export function ClientLayoutWrapper({
                 });
             });
         }
+        */
 
         return () => window.removeEventListener('791_tenant_found', handleTenant);
     }, []);

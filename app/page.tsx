@@ -45,7 +45,6 @@ export default function HomePage() {
         const parsed = JSON.parse(cachedShopInfo);
         if (parsed && parsed.name) {
           setShopInfo(parsed);
-          // Se temos cache, desativamos o loading visual IMEDIATAMENTE
           setLoading(false);
           window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: parsed }));
         }

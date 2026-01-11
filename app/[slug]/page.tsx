@@ -53,7 +53,7 @@ function HomePageContent({ slug }: { slug: string }) {
   useEffect(() => {
     // 1. CARREGAMENTO INSTANTÂNEO (CACHE FIRST)
     try {
-      const cachedShopInfo = localStorage.getItem('791_shop_info');
+      const cachedShopInfo = localStorage.getItem(`791_shop_info_${slug}`);
       if (cachedShopInfo) {
         const parsed = JSON.parse(cachedShopInfo);
         if (parsed && parsed.name) {
@@ -66,7 +66,9 @@ function HomePageContent({ slug }: { slug: string }) {
     } catch (e) { }
 
     // Save last slug for home redirection
-    localStorage.setItem('791_last_slug', slug);
+    if (slug && slug !== 'null' && slug !== 'undefined') {
+      localStorage.setItem('791_last_slug', slug);
+    }
 
     // Load existing client data (SCOPED BY SLUG)
     const savedName = localStorage.getItem(`791_${slug}_client_name`);
@@ -128,8 +130,10 @@ function HomePageContent({ slug }: { slug: string }) {
         if (response.tenant) {
           const tenant = response.tenant;
           setShopInfo(tenant);
-          localStorage.setItem('791_shop_info', JSON.stringify(tenant));
+          localStorage.setItem(`791_shop_info_${slug}`, JSON.stringify(tenant));
           localStorage.setItem('791_last_slug', slug);
+
+          window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: tenant }));
 
           // LOGICA DE REDIRECIONAMENTO INTELIGENTE
           const name = identifiedData?.name || localStorage.getItem(`791_${slug}_client_name`);
@@ -303,8 +307,7 @@ function HomePageContent({ slug }: { slug: string }) {
                 <div
                   onClick={() => {
                     setFlow('appointment');
-                    // setStep(4); // To implement
-                    alert('Módulo de Agendamentos em breve!');
+                    setStep(4); // Start appointment wizard
                   }}
                   className="bg-slate-900 border-2 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
                 >
