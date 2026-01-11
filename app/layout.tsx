@@ -17,17 +17,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const name = tenant?.name || '791 Barber';
   let logo = tenant?.logo_url || '/favicon.ico';
 
-  // URL Absoluta para iPhone
+  let host = '791barber.com';
+  let proto = 'https';
+
+  try {
+    const headerList = await headers();
+    host = headerList.get('host') || '791barber.com';
+    proto = headerList.get('x-forwarded-proto') || 'https';
+  } catch (e) { }
+
+  // URL Absoluta para iPhone e OG
   if (logo && !logo.startsWith('http')) {
-    try {
-      const headerList = await headers();
-      const host = headerList.get('host') || '791barber.com';
-      const proto = headerList.get('x-forwarded-proto') || 'https';
-      const path = logo.startsWith('/') ? logo : `/${logo}`;
-      logo = `${proto}://${host}${path}`;
-    } catch (e) {
-      logo = `https://791barber.com${logo.startsWith('/') ? logo : '/' + logo}`;
-    }
+    const path = logo.startsWith('/') ? logo : `/${logo}`;
+    logo = `${proto}://${host}${path}`;
   }
 
   const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=200`;
@@ -35,10 +37,23 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: name,
     description: "Sistema de fila digital e agendamento",
+    metadataBase: new URL(`${proto}://${host}`),
     appleWebApp: {
       capable: true,
       statusBarStyle: "black-translucent",
       title: name,
+    },
+    openGraph: {
+      title: name,
+      description: "Sistema de fila digital e agendamento",
+      images: [{ url: iconUrl, width: 1200, height: 630, alt: name }],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: name,
+      description: "Sistema de fila digital e agendamento",
+      images: [iconUrl],
     },
     icons: {
       apple: [
