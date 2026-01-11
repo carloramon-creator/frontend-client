@@ -22,13 +22,13 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 
 export const Api = {
     // Lista status dos barbeiros + fila + tempos (PÚBLICO)
-    getQueueStatus: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
+    getQueueStatus: (tenantId: string) => apiFetch(`/api/public/queue?tenantId=${tenantId}`),
 
     // Identificar cliente via URL personalizada (PÚBLICO)
     identifyClient: (clientId: string, slug: string) => apiFetch(`/api/public/client?id=${clientId}&slug=${slug}`),
 
     // Alias para compatibilidade com o que está sendo usado no page.tsx
-    getShopInfo: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
+    getShopInfo: (tenantId: string) => apiFetch(`/api/public/queue?tenantId=${tenantId}`),
 
     // Cliente entra na fila de um barbeiro específico (PÚBLICO)
     enterQueueForBarber: (tenantId: string, barberId: string, clientName: string, clientPhone?: string, cpf?: string, photo_url?: string) =>

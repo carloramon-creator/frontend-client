@@ -207,10 +207,28 @@ export default function HomePage() {
       <div className="flex-1 overflow-y-auto px-4 space-y-4">
         {step === 0 && (
           <section className="space-y-4 flex flex-col h-full animate-in fade-in zoom-in duration-500">
+            {/* Branding Logo */}
+            {shopInfo?.logo_url && (
+              <div className="flex justify-center mt-4">
+                <div className="relative w-32 h-32 rounded-3xl overflow-hidden bg-slate-900 border-2 border-slate-800 p-1">
+                  <img
+                    src={shopInfo.logo_url}
+                    alt={shopInfo.name}
+                    className="w-full h-full object-contain rounded-2xl"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent" />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-1 text-center py-4">
-              <h2 className="text-3xl font-black text-slate-100 uppercase leading-tight">
-                Como deseja <span className="text-blue-500">ser atendido?</span>
-              </h2>
+              <h1 className="text-3xl font-black text-slate-100 uppercase leading-tight">
+                {shopInfo?.name ? (
+                  <>Seja bem-vindo à <br /><span className="text-blue-500">{shopInfo.name}</span></>
+                ) : (
+                  <>Como deseja <span className="text-blue-500">ser atendido?</span></>
+                )}
+              </h1>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Escolha a melhor opção para hoje</p>
             </div>
 
