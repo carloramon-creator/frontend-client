@@ -271,7 +271,8 @@ function HomePageContent({ slug }: { slug: string }) {
             </div>
 
             <div className="grid gap-4 mt-4">
-              {(shopInfo?.module_queue_enabled || shopInfo === null) && (
+              {/* Fallback para sempre mostrar pelo menos a Fila se nada estiver habilitado explicitamente */}
+              {(shopInfo?.module_queue_enabled || (!shopInfo?.module_queue_enabled && !shopInfo?.module_appointments_enabled) || shopInfo === null) && (
                 <div
                   onClick={() => {
                     setFlow('queue');
