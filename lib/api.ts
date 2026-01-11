@@ -24,6 +24,9 @@ export const Api = {
     // Lista status dos barbeiros + fila + tempos (PÚBLICO)
     getQueueStatus: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
 
+    // Identificar cliente via URL personalizada (PÚBLICO)
+    identifyClient: (clientId: string, slug: string) => apiFetch(`/api/public/client?id=${clientId}&slug=${slug}`),
+
     // Alias para compatibilidade com o que está sendo usado no page.tsx
     getShopInfo: (tenantId: string) => apiFetch(`/api/public/queue?tenant_id=${tenantId}`),
 

@@ -9,44 +9,59 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Sparkles, Loader2, Camera, Fingerprint, Phone, CreditCard, ChevronRight, Check } from 'lucide-react';
+import { User, Users, Sparkles, Loader2, Camera, Fingerprint, Phone, CreditCard, ChevronRight, Check, Calendar, Clock, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InstallPWA } from '@/components/pwa/install-button';
-import { use } from 'react';
+import { use, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-export default function HomePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
+interface TenantInfo {
+  name: string;
+  slug: string;
+  logo_url?: string;
+  address_street?: string;
+  address_city?: string;
+  module_queue_enabled?: boolean;
+  module_appointments_enabled?: boolean;
+}
+
+function HomePageContent({ slug }: { slug: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const clientId = searchParams.get('c');
+
   const [barbers, setBarbers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [shopInfo, setShopInfo] = useState<{ name: string; logo_url?: string } | null>(null);
+  const [shopInfo, setShopInfo] = useState<TenantInfo | null>(null);
 
   // Registration State
-  const [step, setStep] = useState(1);
+  // Step 0: Landing (Fila vs Agendamento)
+  // Step 1: Identification (Name + Photo)
+  // Step 2: Details (Phone + CPF)
+  // Step 3: Barber Selection (Fila)
+  const [step, setStep] = useState(0);
+  const [flow, setFlow] = useState<'queue' | 'appointment' | null>(null);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [clientCpf, setClientCpf] = useState('');
   const [clientPhoto, setClientPhoto] = useState<string | null>(null);
 
   const [issubmitting, setIsSubmitting] = useState(false);
+  const [isIdentifying, setIsIdentifying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 1. CARREGAMENTO INSTANTÂNEO (CACHE FIRST)
-    // Tenta carregar informações da barbearia do cache para evitar "flash" de loading
     try {
       const cachedShopInfo = localStorage.getItem('791_shop_info');
       if (cachedShopInfo) {
         const parsed = JSON.parse(cachedShopInfo);
         if (parsed && parsed.name) {
           setShopInfo(parsed);
-          // Se temos cache, desativamos o loading visual IMEDIATAMENTE
           setLoading(false);
         }
       }
-    } catch (e) {
-      // Ignora erro de parse silenciosamente
-    }
+    } catch (e) { }
 
     // Load existing client data (SCOPED BY SLUG)
     const savedName = localStorage.getItem(`791_${slug}_client_name`);
@@ -59,35 +74,82 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
     if (savedCpf) setClientCpf(savedCpf);
     if (savedPhoto) setClientPhoto(savedPhoto);
 
-    // If already has name and phone for THIS shop, skip to barber selection (Step 3)
-    if (savedName && savedPhone) {
-      setStep(3);
-    }
-
-    // 2. REVALIDAÇÃO (NETWORK)
-    // Busca dados atualizados da API em background
     async function load() {
       try {
+        setLoading(true);
+        let identifiedData = null;
+
+        // Identify client if ID is present
+        if (clientId) {
+          setIsIdentifying(true);
+          try {
+            const clientData = await Api.identifyClient(clientId, slug);
+            if (clientData) {
+              identifiedData = clientData;
+              setClientName(clientData.name);
+              setClientPhone(clientData.phone);
+              setClientCpf(clientData.cpf || '');
+              setClientPhoto(clientData.photo_url || null);
+
+              localStorage.setItem(`791_${slug}_client_id`, clientData.id);
+              localStorage.setItem(`791_${slug}_client_name`, clientData.name);
+              localStorage.setItem(`791_${slug}_client_phone`, clientData.phone);
+              if (clientData.cpf) localStorage.setItem(`791_${slug}_client_cpf`, clientData.cpf);
+              if (clientData.photo_url) localStorage.setItem(`791_${slug}_client_photo`, clientData.photo_url);
+            }
+          } catch (e) {
+            console.error("Identificação falhou", e);
+          } finally {
+            setIsIdentifying(false);
+          }
+        }
+
         const response = await Api.getQueueStatus(slug);
-        // New structure: { barbers, tenant }
         setBarbers(response.barbers || []);
 
         if (response.tenant) {
-          setShopInfo(response.tenant);
-          // Atualiza cache para próxima vez
-          localStorage.setItem('791_shop_info', JSON.stringify(response.tenant));
+          const tenant = response.tenant;
+          setShopInfo(tenant);
+          localStorage.setItem('791_shop_info', JSON.stringify(tenant));
 
-          window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: response.tenant }));
+          // LOGICA DE REDIRECIONAMENTO INTELIGENTE
+          // Se já temos nome e telefone (seja do identificador ou do cache)
+          const name = identifiedData?.name || savedName;
+          const phone = identifiedData?.phone || savedPhone;
+          const photo = identifiedData?.photo_url || savedPhoto;
+          // const cpf = identifiedData?.cpf || savedCpf; // CPF não é mandatório para pular, mas foto é
+
+          if (name && phone) {
+            if (!photo) {
+              // Falta foto, go to step 1
+              setStep(1);
+            } else {
+              // Perfil completo (ou suficiente), go to choice or direct
+              if (tenant.module_queue_enabled && tenant.module_appointments_enabled) {
+                setStep(0); // Choose Flow
+              } else if (tenant.module_queue_enabled) {
+                setFlow('queue');
+                setStep(3); // Barber Selection
+              } else if (tenant.module_appointments_enabled) {
+                setFlow('appointment');
+                setStep(4); // Appointment wizard (to be implemented)
+              }
+            }
+          } else {
+            // New user, start at registration
+            setStep(1);
+          }
+
+          window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: tenant }));
         }
       } catch (err) {
         console.error(err);
       } finally {
-        // Garante que loading some mesmo se não tinha cache e deu erro
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [clientId, slug]);
 
   const handleEnterQueue = async (barberId?: string) => {
     if (!clientName.trim() || !clientPhone.trim()) {
@@ -183,6 +245,62 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 space-y-4">
+        {step === 0 && (
+          <section className="space-y-4 flex flex-col h-full animate-in fade-in zoom-in duration-500">
+            <div className="space-y-1 text-center py-4">
+              <h2 className="text-3xl font-black text-slate-100 uppercase leading-tight">
+                Como deseja <span className="text-blue-500">ser atendido?</span>
+              </h2>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Escolha a melhor opção para hoje</p>
+            </div>
+
+            <div className="grid gap-4 mt-4">
+              {shopInfo?.module_queue_enabled && (
+                <div
+                  onClick={() => {
+                    setFlow('queue');
+                    setStep(3);
+                  }}
+                  className="bg-slate-900 border-2 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                      <Users size={28} />
+                    </div>
+                    <ChevronRight className="text-slate-700 group-hover:text-blue-500 group-hover:translate-x-1" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-100 uppercase">Entrar na Fila</h3>
+                    <p className="text-slate-500 text-xs font-medium">Atendimento imediato por ordem de chegada.</p>
+                  </div>
+                </div>
+              )}
+
+              {shopInfo?.module_appointments_enabled && (
+                <div
+                  onClick={() => {
+                    setFlow('appointment');
+                    // setStep(4); // To implement
+                    alert('Módulo de Agendamentos em breve!');
+                  }}
+                  className="bg-slate-900 border-2 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                      <Calendar size={28} />
+                    </div>
+                    <ChevronRight className="text-slate-700 group-hover:text-emerald-500 group-hover:translate-x-1" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-100 uppercase">Agendar Horário</h3>
+                    <p className="text-slate-500 text-xs font-medium">Escolha o melhor dia e hora para você.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {step === 1 && (
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
@@ -228,11 +346,26 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
             </div>
 
             <Button
-              onClick={() => clientName && setStep(2)}
+              onClick={() => {
+                if (clientName && clientPhoto) {
+                  // Se já tem foto, decide para onde ir baseado nos módulos
+                  if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
+                    setStep(0);
+                  } else if (shopInfo?.module_queue_enabled) {
+                    setFlow('queue');
+                    setStep(3);
+                  } else if (shopInfo?.module_appointments_enabled) {
+                    setFlow('appointment');
+                    setStep(4);
+                  }
+                } else if (clientName) {
+                  setStep(2);
+                }
+              }}
               disabled={!clientName}
               className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-4"
             >
-              Próximo
+              {clientPhoto ? 'Continuar' : 'Próximo'}
               <ChevronRight className="ml-2" size={18} />
             </Button>
           </section>
@@ -301,7 +434,19 @@ export default function HomePage({ params }: { params: Promise<{ slug: string }>
                 Voltar
               </Button>
               <Button
-                onClick={() => clientPhone.length >= 14 && setStep(3)}
+                onClick={() => {
+                  if (clientPhone.length >= 14) {
+                    if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
+                      setStep(0);
+                    } else if (shopInfo?.module_queue_enabled) {
+                      setFlow('queue');
+                      setStep(3);
+                    } else if (shopInfo?.module_appointments_enabled) {
+                      setFlow('appointment');
+                      setStep(4);
+                    }
+                  }
+                }}
                 disabled={clientPhone.length < 14}
                 className="flex-[2] h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg"
               >
