@@ -98,14 +98,17 @@ function HomePageContent({ slug }: { slug: string }) {
               identifiedData = clientData;
               setClientName(clientData.name);
               setClientPhone(clientData.phone);
-              setClientCpf(clientData.cpf || '');
               setClientPhoto(clientData.photo_url || null);
 
               localStorage.setItem(`791_${slug}_client_id`, clientData.id);
               localStorage.setItem(`791_${slug}_client_name`, clientData.name);
               localStorage.setItem(`791_${slug}_client_phone`, clientData.phone);
+
               if (clientData.cpf) localStorage.setItem(`791_${slug}_client_cpf`, clientData.cpf);
+              else localStorage.removeItem(`791_${slug}_client_cpf`);
+
               if (clientData.photo_url) localStorage.setItem(`791_${slug}_client_photo`, clientData.photo_url);
+              else localStorage.removeItem(`791_${slug}_client_photo`);
             }
           } catch (e) {
             console.error("Identificação falhou", e);
@@ -268,7 +271,7 @@ function HomePageContent({ slug }: { slug: string }) {
             </div>
 
             <div className="grid gap-4 mt-4">
-              {shopInfo?.module_queue_enabled && (
+              {(shopInfo?.module_queue_enabled || shopInfo === null) && (
                 <div
                   onClick={() => {
                     setFlow('queue');
@@ -289,7 +292,7 @@ function HomePageContent({ slug }: { slug: string }) {
                 </div>
               )}
 
-              {shopInfo?.module_appointments_enabled && (
+              {(shopInfo?.module_appointments_enabled) && (
                 <div
                   onClick={() => {
                     setFlow('appointment');
