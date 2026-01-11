@@ -11,15 +11,16 @@ export function ClientLayoutWrapper({
     const [tenant, setTenant] = useState<{ name: string; logo_url?: string } | null>(null);
 
     useEffect(() => {
-        // Tenta carregar branding do cache imediatamente para evitar flash genérico
-        const cached = localStorage.getItem('791_shop_info');
-        if (cached) {
-            try {
+        // Load from cache instantly to avoid generic branding
+        try {
+            const cached = localStorage.getItem('791_shop_info');
+            if (cached) {
                 const parsed = JSON.parse(cached);
-                setTenant(parsed);
-                if (parsed.name) document.title = `${parsed.name} | Agendamento`;
-            } catch (e) { }
-        }
+                if (parsed && parsed.name) {
+                    setTenant(parsed);
+                }
+            }
+        } catch (e) { }
 
         const handleTenant = (e: any) => {
             setTenant(e.detail);

@@ -33,6 +33,8 @@ export async function generateMetadata(
         }
     }
 
+    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=2`;
+
     return {
         title: name,
         description: `Agendamento online para ${name}.`,
@@ -44,12 +46,12 @@ export async function generateMetadata(
         },
         icons: {
             apple: [
-                { url: logo, sizes: '180x180' },
+                { url: iconUrl, sizes: '180x180' },
             ],
-            shortcut: logo,
+            shortcut: iconUrl,
             icon: [
-                { url: logo, sizes: '192x192' },
-                { url: logo, sizes: '512x512' },
+                { url: iconUrl, sizes: '192x192' },
+                { url: iconUrl, sizes: '512x512' },
             ],
         },
     };

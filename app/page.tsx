@@ -30,6 +30,13 @@ export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // 0. SMART REDIRECT
+    const lastSlug = localStorage.getItem('791_last_slug');
+    if (lastSlug && lastSlug !== 'null') {
+      router.push(`/${lastSlug}`);
+      return;
+    }
+
     // 1. CARREGAMENTO INSTANTÂNEO (CACHE FIRST)
     // Tenta carregar informações da barbearia do cache para evitar "flash" de loading
     try {
@@ -40,6 +47,7 @@ export default function HomePage() {
           setShopInfo(parsed);
           // Se temos cache, desativamos o loading visual IMEDIATAMENTE
           setLoading(false);
+          window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: parsed }));
         }
       }
     } catch (e) {
@@ -84,13 +92,6 @@ export default function HomePage() {
         setLoading(false);
       }
     }
-    // 4. REDIRECIONAMENTO INTELIGENTE (NOVA LOGICA)
-    const lastSlug = localStorage.getItem('791_last_slug');
-    if (lastSlug && lastSlug !== '') {
-      router.replace(`/${lastSlug}`);
-      return;
-    }
-
     load();
   }, []);
 

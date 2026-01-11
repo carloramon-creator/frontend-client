@@ -59,9 +59,14 @@ function HomePageContent({ slug }: { slug: string }) {
         if (parsed && parsed.name) {
           setShopInfo(parsed);
           setLoading(false);
+          // NEW: Dispatch event immediately from cache so header updates
+          window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: parsed }));
         }
       }
     } catch (e) { }
+
+    // Save last slug for home redirection
+    localStorage.setItem('791_last_slug', slug);
 
     // Load existing client data (SCOPED BY SLUG)
     const savedName = localStorage.getItem(`791_${slug}_client_name`);
