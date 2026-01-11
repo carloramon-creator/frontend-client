@@ -33,16 +33,28 @@ export async function generateMetadata(
         }
     }
 
-    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=200`;
+    const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=205`;
 
     return {
         title: name,
         description: `Agendamento online para ${name}.`,
-        manifest: `/api/manifest/${slug}`,
+        manifest: `/api/manifest/${slug}?v=205`,
         appleWebApp: {
             capable: true,
             statusBarStyle: "black-translucent",
             title: name,
+        },
+        openGraph: {
+            title: name,
+            description: `Agendamento online para ${name}.`,
+            images: [{ url: iconUrl, width: 1200, height: 630, alt: name }],
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: name,
+            description: `Agendamento online para ${name}.`,
+            images: [iconUrl],
         },
         icons: {
             apple: [

@@ -41,11 +41,14 @@ export async function generateMetadata(): Promise<Metadata> {
     logo = `${proto}://${host}${path}`;
   }
 
-  const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=200`;
+  const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=205`;
 
   return {
-    title: name,
-    description: "Sistema de fila digital e agendamento",
+    title: {
+      default: name,
+      template: `%s | ${name}`
+    },
+    description: "Sistema de fila digital e agendamento premium",
     metadataBase: new URL(`${proto}://${host}`),
     appleWebApp: {
       capable: true,
@@ -54,14 +57,14 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: name,
-      description: "Sistema de fila digital e agendamento",
+      description: "Sistema de fila digital e agendamento premium",
       images: [{ url: iconUrl, width: 1200, height: 630, alt: name }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: name,
-      description: "Sistema de fila digital e agendamento",
+      description: "Sistema de fila digital e agendamento premium",
       images: [iconUrl],
     },
     icons: {

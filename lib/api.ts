@@ -77,6 +77,28 @@ export const Api = {
             method: 'PUT',
         }),
 
+    // === AGENDAMENTOS (PÚBLICO) ===
+
+    // Lista serviços disponíveis na barbearia
+    getServices: (slug: string) => apiFetch(`/api/public/services?slug=${slug}`),
+
+    // Lista barbeiros disponíveis na barbearia
+    getBarbers: (slug: string) => apiFetch(`/api/public/barbers?slug=${slug}`),
+
+    // Busca serviços de um barbeiro específico
+    getBarberServices: (barberId: string) => apiFetch(`/api/public/barber/${barberId}/services`),
+
+    // Busca horários disponíveis
+    getAvailability: (date: string, barberId: string, duration: number, slug: string) =>
+        apiFetch(`/api/public/availability?date=${date}&barberId=${barberId}&duration=${duration}&slug=${slug}`),
+
+    // Cria um agendamento
+    createAppointment: (data: any) =>
+        apiFetch('/api/public/appointments', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }),
+
     // Cliente sai da fila (CANCELAR)
     cancelTicket: (ticketId: string) =>
         apiFetch(`/api/public/queue/cancel`, {

@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { InstallPWA } from '@/components/pwa/install-button';
 import { use, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { AppointmentWizard } from '@/components/appointment/appointment-wizard';
 
 interface TenantInfo {
   name: string;
@@ -45,6 +46,7 @@ function HomePageContent({ slug }: { slug: string }) {
   const [clientPhone, setClientPhone] = useState('');
   const [clientCpf, setClientCpf] = useState('');
   const [clientPhoto, setClientPhoto] = useState<string | null>(null);
+  const [appointmentSuccess, setAppointmentSuccess] = useState(false);
 
   const [issubmitting, setIsSubmitting] = useState(false);
   const [isIdentifying, setIsIdentifying] = useState(false);
@@ -168,8 +170,11 @@ function HomePageContent({ slug }: { slug: string }) {
 
           window.dispatchEvent(new CustomEvent('791_tenant_found', { detail: tenant }));
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        if (err.data?.error === 'Barbearia não encontrada' || err.message.includes('404')) {
+          setShopInfo({ name: 'Barbearia não encontrada', logo_url: '' } as any);
+        }
       } finally {
         setLoading(false);
       }
@@ -271,279 +276,300 @@ function HomePageContent({ slug }: { slug: string }) {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 space-y-4">
-        {step === 0 && (
-          <section className="space-y-4 flex flex-col h-full animate-in fade-in zoom-in duration-500">
-            <div className="space-y-1 text-center py-4">
-              <h2 className="text-3xl font-black text-slate-100 uppercase leading-tight">
-                Como deseja <span className="text-blue-500">ser atendido?</span>
-              </h2>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Escolha a melhor opção para hoje</p>
+        {shopInfo && shopInfo.name === 'Barbearia não encontrada' ? (
+          <div className="flex-1 flex flex-col items-center justify-center space-y-4 py-20 text-center animate-in zoom-in duration-500">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 border-2 border-red-500/20">
+              <User size={40} />
             </div>
-
-            <div className="grid gap-4 mt-4">
-              {/* Fallback para sempre mostrar os módulos se nada estiver habilitado explicitamente ou estiver carregando */}
-              {(shopInfo?.module_queue_enabled || shopInfo === null) && (
-                <div
-                  onClick={() => {
-                    setFlow('queue');
-                    setStep(3);
-                  }}
-                  className="bg-slate-900 border-2 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                      <Users size={28} />
-                    </div>
-                    <ChevronRight className="text-slate-700 group-hover:text-blue-500 group-hover:translate-x-1" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black text-slate-100 uppercase">Entrar na Fila</h3>
-                    <p className="text-slate-500 text-xs font-medium">Atendimento imediato por ordem de chegada.</p>
-                  </div>
-                </div>
-              )}
-
-              {(shopInfo?.module_appointments_enabled || shopInfo === null) && (
-                <div
-                  onClick={() => {
-                    setFlow('appointment');
-                    setStep(4); // Start appointment wizard
-                  }}
-                  className="bg-slate-900 border-2 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                      <Calendar size={28} />
-                    </div>
-                    <ChevronRight className="text-slate-700 group-hover:text-emerald-500 group-hover:translate-x-1" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black text-slate-100 uppercase">Agendar Horário</h3>
-                    <p className="text-slate-500 text-xs font-medium">Escolha o melhor dia e hora para você.</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {step === 1 && (
-          <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
-              <h2 className="text-2xl font-black text-slate-100 uppercase leading-tight">
-                {clientId ? 'Conclua seu' : 'Quem'} <span className="text-blue-500">{clientId ? 'Perfil' : 'é você?'}</span>
-              </h2>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-                {clientId ? 'Sua barbearia te aguarda! Só falta a foto.' : 'Inicie sua experiência premium'}
-              </p>
+              <h2 className="text-xl font-bold text-slate-100 uppercase">Ops! Nada por aqui.</h2>
+              <p className="text-slate-500 text-sm max-w-xs">Não encontramos nenhuma barbearia com este link. Verifique o endereço e tente novamente.</p>
             </div>
-
-            <div className="flex flex-col items-center space-y-4 py-2">
-              <div
-                onClick={handlePhotoClick}
-                className="w-24 h-24 rounded-full border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-800/50 transition-all overflow-hidden relative group shadow-inner"
-              >
-                {clientPhoto ? (
-                  <img src={clientPhoto} alt="Preview" className="w-full h-full object-cover" />
-                ) : (
-                  <>
-                    <Camera className="text-slate-600 group-hover:text-blue-500 transition-colors" size={24} />
-                    <span className="text-[8px] font-black uppercase text-slate-500 mt-1 text-center px-2">Adicionar Foto</span>
-                  </>
-                )}
-                {clientPhoto && (
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <Camera className="text-white" size={20} />
-                  </div>
-                )}
-              </div>
-              <input type="file" accept="image/*" capture="user" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
-
-              <div className="w-full space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-1">Nome Completo</Label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
-                  <Input
-                    placeholder="Ex: João da Silva"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold placeholder:text-slate-700 focus:border-blue-500 rounded-2xl"
-                  />
-                </div>
-              </div>
-            </div>
-
             <Button
-              onClick={() => {
-                const hasPhoto = clientPhoto && clientPhoto !== 'null';
-                const hasCpf = clientCpf && clientCpf.length >= 14;
-
-                if (clientName && hasPhoto && hasCpf) {
-                  // Perfil completo, decide fluxo
-                  if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
-                    setStep(0);
-                  } else if (shopInfo?.module_queue_enabled) {
-                    setFlow('queue');
-                    setStep(3);
-                  } else if (shopInfo?.module_appointments_enabled) {
-                    setFlow('appointment');
-                    setStep(4);
-                  }
-                } else if (clientName) {
-                  setStep(2);
-                }
-              }}
-              disabled={!clientName}
-              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-4"
+              variant="outline"
+              onClick={() => window.location.href = '/'}
+              className="mt-4 border-slate-800 text-slate-400"
             >
-              {(clientPhoto && clientCpf.length >= 14) ? 'Continuar' : 'Próximo'}
-              <ChevronRight className="ml-2" size={18} />
+              Voltar ao Início
             </Button>
-          </section>
-        )}
-
-        {step === 2 && (
-          <section className="space-y-4 flex flex-col h-full">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-black text-slate-100 uppercase">
-                {clientId ? 'Confirme seus' : 'Seus'} <span className="text-blue-500">Dados</span>
-              </h2>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Para NF-e e notificações</p>
-            </div>
-
-            <div className="space-y-4 flex-1 justify-center flex flex-col py-2">
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">WhatsApp (DDD)</Label>
-                <div className="relative group">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
-                  <Input
-                    type="tel"
-                    placeholder="(00) 00000-0000"
-                    value={clientPhone}
-                    onChange={(e) => {
-                      const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
-                      let masked = raw;
-                      if (raw.length > 2) {
-                        masked = `(${raw.slice(0, 2)}) ${raw.slice(2)}`;
-                      }
-                      if (raw.length > 7) {
-                        masked = `(${raw.slice(0, 2)}) ${raw.slice(2, 7)}-${raw.slice(7)}`;
-                      }
-                      setClientPhone(masked);
-                    }}
-                    className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold focus:border-blue-500 rounded-2xl"
-                  />
+          </div>
+        ) : (
+          <>
+            {step === 0 && (
+              <section className="space-y-4 flex flex-col h-full animate-in fade-in zoom-in duration-500">
+                <div className="space-y-1 text-center py-4">
+                  <h2 className="text-3xl font-black text-slate-100 uppercase leading-tight">
+                    Como deseja <span className="text-blue-500">ser atendido?</span>
+                  </h2>
+                  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Escolha a melhor opção para hoje</p>
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">CPF (NF-e)</Label>
-                <div className="relative group">
-                  <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
-                  <Input
-                    placeholder="000.000.000-00"
-                    value={clientCpf}
-                    onChange={(e) => {
-                      let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-                      if (v.length > 3) v = `${v.slice(0, 3)}.${v.slice(3)}`;
-                      if (v.length > 7) v = `${v.slice(0, 7)}.${v.slice(7)}`;
-                      if (v.length > 11) v = `${v.slice(0, 11)}-${v.slice(11)}`;
-                      setClientCpf(v);
-                    }}
-                    className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold focus:border-blue-500 rounded-2xl"
-                  />
+                <div className="grid gap-4 mt-4">
+                  {/* Fallback para sempre mostrar os módulos se nada estiver habilitado explicitamente ou estiver carregando */}
+                  {(shopInfo?.module_queue_enabled || shopInfo === null) && (
+                    <div
+                      onClick={() => {
+                        setFlow('queue');
+                        setStep(3);
+                      }}
+                      className="bg-slate-900 border-2 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                          <Users size={28} />
+                        </div>
+                        <ChevronRight className="text-slate-700 group-hover:text-blue-500 group-hover:translate-x-1" size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-slate-100 uppercase">Entrar na Fila</h3>
+                        <p className="text-slate-500 text-xs font-medium">Atendimento imediato por ordem de chegada.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(shopInfo?.module_appointments_enabled || shopInfo === null) && (
+                    <div
+                      onClick={() => {
+                        setFlow('appointment');
+                        setStep(4); // Start appointment wizard
+                      }}
+                      className="bg-slate-900 border-2 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all p-6 rounded-3xl flex flex-col gap-4 group cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                          <Calendar size={28} />
+                        </div>
+                        <ChevronRight className="text-slate-700 group-hover:text-emerald-500 group-hover:translate-x-1" size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-slate-100 uppercase">Agendar Horário</h3>
+                        <p className="text-slate-500 text-xs font-medium">Escolha o melhor dia e hora para você.</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
+              </section>
+            )}
 
-            <div className="flex gap-3 mt-auto">
-              <Button
-                variant="outline"
-                onClick={() => setStep(1)}
-                className="flex-1 h-14 border-slate-800 text-slate-400 font-black uppercase italic rounded-2xl"
-              >
-                Voltar
-              </Button>
-              <Button
-                onClick={() => {
-                  if (clientPhone.length >= 14) {
-                    if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
-                      setStep(0);
-                    } else if (shopInfo?.module_queue_enabled) {
-                      setFlow('queue');
-                      setStep(3);
-                    } else if (shopInfo?.module_appointments_enabled) {
-                      setFlow('appointment');
-                      setStep(4);
-                    }
-                  }
-                }}
-                disabled={clientPhone.length < 14}
-                className="flex-[2] h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg"
-              >
-                Continuar
-              </Button>
-            </div>
-          </section>
-        )}
+            {step === 1 && (
+              <section className="space-y-4 flex flex-col h-full">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-black text-slate-100 uppercase leading-tight">
+                    {clientId ? 'Conclua seu' : 'Quem'} <span className="text-blue-500">{clientId ? 'Perfil' : 'é você?'}</span>
+                  </h2>
+                  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                    {clientId ? 'Sua barbearia te aguarda! Só falta a foto.' : 'Inicie sua experiência premium'}
+                  </p>
+                </div>
 
-        {step === 3 && (
-          <section className="space-y-4 flex flex-col h-full">
-            <div className="space-y-1 text-center">
-              <h2 className="text-2xl font-black text-slate-100 uppercase">
-                Escolha seu <span className="text-blue-500">Artista</span>
-              </h2>
-              {clientName && <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Bem-vindo de volta, {clientName.split(' ')[0]}!</p>}
-            </div>
-
-            <div className="space-y-3 pb-4">
-              <div
-                className="cursor-pointer border-2 border-dashed border-blue-600/30 bg-blue-600/5 hover:bg-blue-600/10 hover:border-blue-600/50 transition-all p-4 rounded-3xl flex items-center justify-between group"
-                onClick={() => handleEnterQueue()}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                    <Sparkles size={24} />
+                <div className="flex flex-col items-center space-y-4 py-2">
+                  <div
+                    onClick={handlePhotoClick}
+                    className="w-24 h-24 rounded-full border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-800/50 transition-all overflow-hidden relative group shadow-inner"
+                  >
+                    {clientPhoto ? (
+                      <img src={clientPhoto} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <>
+                        <Camera className="text-slate-600 group-hover:text-blue-500 transition-colors" size={24} />
+                        <span className="text-[8px] font-black uppercase text-slate-500 mt-1 text-center px-2">Adicionar Foto</span>
+                      </>
+                    )}
+                    {clientPhoto && (
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Camera className="text-white" size={20} />
+                      </div>
+                    )}
                   </div>
-                  <div className="text-left">
-                    <h4 className="font-black text-slate-100 uppercase text-base leading-tight">Próximo Disponível</h4>
-                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest mt-0.5">Menor tempo</p>
+                  <input type="file" accept="image/*" capture="user" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+
+                  <div className="w-full space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-1">Nome Completo</Label>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
+                      <Input
+                        placeholder="Ex: João da Silva"
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
+                        className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold placeholder:text-slate-700 focus:border-blue-500 rounded-2xl"
+                      />
+                    </div>
                   </div>
                 </div>
-                <ChevronRight className="text-blue-600 group-hover:translate-x-1" size={16} />
-              </div>
 
-              <div className="overflow-y-auto max-h-[35vh] pr-1 custom-scrollbar">
-                <BarberList
-                  barbers={barbers}
-                  onSelect={(id) => handleEnterQueue(id)}
-                />
-              </div>
-
-              <div className="flex gap-3">
                 <Button
-                  variant="outline"
-                  onClick={() => setStep(2)}
-                  className="flex-1 h-14 border-slate-800 text-slate-400 font-black uppercase rounded-2xl"
-                >
-                  Voltar
-                </Button>
-                <Button
-                  variant="ghost"
                   onClick={() => {
-                    localStorage.removeItem(`791_${slug}_client_name`);
-                    localStorage.removeItem(`791_${slug}_client_phone`);
-                    localStorage.removeItem(`791_${slug}_client_cpf`);
-                    localStorage.removeItem(`791_${slug}_client_photo`);
-                    window.location.reload();
+                    const hasPhoto = clientPhoto && clientPhoto !== 'null';
+                    const hasCpf = clientCpf && clientCpf.length >= 14;
+
+                    if (clientName && hasPhoto && hasCpf) {
+                      // Perfil completo, decide fluxo
+                      if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
+                        setStep(0);
+                      } else if (shopInfo?.module_queue_enabled) {
+                        setFlow('queue');
+                        setStep(3);
+                      } else if (shopInfo?.module_appointments_enabled) {
+                        setFlow('appointment');
+                        setStep(4);
+                      }
+                    } else if (clientName) {
+                      setStep(2);
+                    }
                   }}
-                  className="flex-1 text-slate-700 font-bold uppercase text-[8px] tracking-[0.2em] h-auto"
+                  disabled={!clientName}
+                  className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-4"
                 >
-                  Limpar dados
+                  {(clientPhoto && clientCpf.length >= 14) ? 'Continuar' : 'Próximo'}
+                  <ChevronRight className="ml-2" size={18} />
                 </Button>
-              </div>
-            </div>
-          </section>
+              </section>
+            )}
+
+            {step === 2 && (
+              <section className="space-y-4 flex flex-col h-full">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-black text-slate-100 uppercase">
+                    {clientId ? 'Confirme seus' : 'Seus'} <span className="text-blue-500">Dados</span>
+                  </h2>
+                  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Para NF-e e notificações</p>
+                </div>
+
+                <div className="space-y-4 flex-1 justify-center flex flex-col py-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">WhatsApp (DDD)</Label>
+                    <div className="relative group">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
+                      <Input
+                        type="tel"
+                        placeholder="(00) 00000-0000"
+                        value={clientPhone}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+                          let masked = raw;
+                          if (raw.length > 2) {
+                            masked = `(${raw.slice(0, 2)}) ${raw.slice(2)}`;
+                          }
+                          if (raw.length > 7) {
+                            masked = `(${raw.slice(0, 2)}) ${raw.slice(2, 7)}-${raw.slice(7)}`;
+                          }
+                          setClientPhone(masked);
+                        }}
+                        className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold focus:border-blue-500 rounded-2xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">CPF (NF-e)</Label>
+                    <div className="relative group">
+                      <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={16} />
+                      <Input
+                        placeholder="000.000.000-00"
+                        value={clientCpf}
+                        onChange={(e) => {
+                          let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+                          if (v.length > 3) v = `${v.slice(0, 3)}.${v.slice(3)}`;
+                          if (v.length > 7) v = `${v.slice(0, 7)}.${v.slice(7)}`;
+                          if (v.length > 11) v = `${v.slice(0, 11)}-${v.slice(11)}`;
+                          setClientCpf(v);
+                        }}
+                        className="h-12 pl-11 bg-slate-900 border-slate-800 text-base font-bold focus:border-blue-500 rounded-2xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-auto">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(1)}
+                    className="flex-1 h-14 border-slate-800 text-slate-400 font-black uppercase italic rounded-2xl"
+                  >
+                    Voltar
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (clientPhone.length >= 14) {
+                        if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
+                          setStep(0);
+                        } else if (shopInfo?.module_queue_enabled) {
+                          setFlow('queue');
+                          setStep(3);
+                        } else if (shopInfo?.module_appointments_enabled) {
+                          setFlow('appointment');
+                          setStep(4);
+                        }
+                      }
+                    }}
+                    disabled={clientPhone.length < 14}
+                    className="flex-[2] h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg"
+                  >
+                    Continuar
+                  </Button>
+                </div>
+              </section>
+            )}
+
+            {step === 3 && (
+              <section className="space-y-4 flex flex-col h-full">
+                <div className="space-y-1 text-center">
+                  <h2 className="text-2xl font-black text-slate-100 uppercase">
+                    Escolha seu <span className="text-blue-500">Artista</span>
+                  </h2>
+                  {clientName && <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Bem-vindo de volta, {clientName.split(' ')[0]}!</p>}
+                </div>
+
+                <div className="space-y-3 pb-4">
+                  <div
+                    className="cursor-pointer border-2 border-dashed border-blue-600/30 bg-blue-600/5 hover:bg-blue-600/10 hover:border-blue-600/50 transition-all p-4 rounded-3xl flex items-center justify-between group"
+                    onClick={() => handleEnterQueue()}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                        <Sparkles size={24} />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-black text-slate-100 uppercase text-base leading-tight">Próximo Disponível</h4>
+                        <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest mt-0.5">Menor tempo</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="text-blue-600 group-hover:translate-x-1" size={16} />
+                  </div>
+
+                  <div className="overflow-y-auto max-h-[35vh] pr-1 custom-scrollbar">
+                    <BarberList
+                      barbers={barbers}
+                      onSelect={(id) => handleEnterQueue(id)}
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setStep(2)}
+                      className="flex-1 h-14 border-slate-800 text-slate-400 font-black uppercase rounded-2xl"
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        localStorage.removeItem(`791_${slug}_client_name`);
+                        localStorage.removeItem(`791_${slug}_client_phone`);
+                        localStorage.removeItem(`791_${slug}_client_cpf`);
+                        localStorage.removeItem(`791_${slug}_client_photo`);
+                        window.location.reload();
+                      }}
+                      className="flex-1 text-slate-700 font-bold uppercase text-[8px] tracking-[0.2em] h-auto"
+                    >
+                      Limpar dados
+                    </Button>
+                  </div>
+                </div>
+              </section>
+            )}
+          </>
         )}
       </div>
 

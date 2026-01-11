@@ -35,7 +35,7 @@ export async function GET(
             logo = `${proto}://${host}${path}`;
         }
 
-        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=200`;
+        const iconUrl = `${logo}${logo.includes('?') ? '&' : '?'}v=205`;
         console.log(`[MANIFEST] Found tenant: ${tenant?.name}, logo: ${iconUrl}`);
 
         const manifest = {
@@ -50,25 +50,19 @@ export async function GET(
             theme_color: "#020617",
             icons: [
                 {
-                    "src": iconUrl,
-                    "sizes": "180x180",
-                    "type": "image/png",
-                    "purpose": "any"
-                },
-                {
-                    "src": iconUrl,
+                    "src": `${logo}?v=205`,
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "any"
                 },
                 {
-                    "src": iconUrl,
+                    "src": `${logo}?v=205`,
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "maskable"
                 },
                 {
-                    "src": iconUrl,
+                    "src": `${logo}?v=205`,
                     "sizes": "512x512",
                     "type": "image/png",
                     "purpose": "any"
