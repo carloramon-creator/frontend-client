@@ -83,6 +83,16 @@ function HomePageContent({ slug }: { slug: string }) {
         if (clientId) {
           setIsIdentifying(true);
           try {
+            // Fix: Compare ID with cache to avoid data mixture if switching links
+            const cachedId = localStorage.getItem(`791_${slug}_client_id`);
+            if (cachedId && cachedId !== clientId) {
+              console.log("[CLIENT] New ID detected, clearing local cache.");
+              localStorage.removeItem(`791_${slug}_client_name`);
+              localStorage.removeItem(`791_${slug}_client_phone`);
+              localStorage.removeItem(`791_${slug}_client_cpf`);
+              localStorage.removeItem(`791_${slug}_client_photo`);
+            }
+
             const clientData = await Api.identifyClient(clientId, slug);
             if (clientData) {
               identifiedData = clientData;
@@ -113,18 +123,18 @@ function HomePageContent({ slug }: { slug: string }) {
           localStorage.setItem('791_shop_info', JSON.stringify(tenant));
 
           // LOGICA DE REDIRECIONAMENTO INTELIGENTE
-          // Se já temos nome e telefone (seja do identificador ou do cache)
-          const name = identifiedData?.name || savedName;
-          const phone = identifiedData?.phone || savedPhone;
-          const photo = identifiedData?.photo_url || savedPhoto;
-          // const cpf = identifiedData?.cpf || savedCpf; // CPF não é mandatório para pular, mas foto é
+          const name = identifiedData?.name || localStorage.getItem(`791_${slug}_client_name`);
+          const phone = identifiedData?.phone || localStorage.getItem(`791_${slug}_client_phone`);
+          const photo = identifiedData?.photo_url || localStorage.getItem(`791_${slug}_client_photo`);
+          const cpf = identifiedData?.cpf || localStorage.getItem(`791_${slug}_client_cpf`);
 
           if (name && phone) {
-            if (!photo) {
-              // Falta foto, go to step 1
-              setStep(1);
-            } else {
-              // Perfil completo (ou suficiente), go to choice or direct
+            // FIX: Enforce BOTH photo and CPF for "complete" status
+            const hasPhoto = photo && photo !== 'null';
+            const hasCpf = cpf && cpf !== 'null' && cpf.length >= 14;
+
+            if (hasPhoto && hasCpf) {
+              // Perfil completo, go to choice or direct
               if (tenant.module_queue_enabled && tenant.module_appointments_enabled) {
                 setStep(0); // Choose Flow
               } else if (tenant.module_queue_enabled) {
@@ -132,8 +142,11 @@ function HomePageContent({ slug }: { slug: string }) {
                 setStep(3); // Barber Selection
               } else if (tenant.module_appointments_enabled) {
                 setFlow('appointment');
-                setStep(4); // Appointment wizard (to be implemented)
+                setStep(4); // Appointment wizard
               }
+            } else {
+              // Perfil incompleto, go to registration steps
+              setStep(1);
             }
           } else {
             // New user, start at registration
@@ -305,9 +318,11 @@ function HomePageContent({ slug }: { slug: string }) {
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
               <h2 className="text-2xl font-black text-slate-100 uppercase leading-tight">
-                Quem <span className="text-blue-500">é você?</span>
+                {clientId ? 'Conclua seu' : 'Quem'} <span className="text-blue-500">{clientId ? 'Perfil' : 'é você?'}</span>
               </h2>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Inicie sua experiência premium</p>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                {clientId ? 'Sua barbearia te aguarda! Só falta a foto.' : 'Inicie sua experiência premium'}
+              </p>
             </div>
 
             <div className="flex flex-col items-center space-y-4 py-2">
@@ -347,8 +362,11 @@ function HomePageContent({ slug }: { slug: string }) {
 
             <Button
               onClick={() => {
-                if (clientName && clientPhoto) {
-                  // Se já tem foto, decide para onde ir baseado nos módulos
+                const hasPhoto = clientPhoto && clientPhoto !== 'null';
+                const hasCpf = clientCpf && clientCpf.length >= 14;
+
+                if (clientName && hasPhoto && hasCpf) {
+                  // Perfil completo, decide fluxo
                   if (shopInfo?.module_queue_enabled && shopInfo?.module_appointments_enabled) {
                     setStep(0);
                   } else if (shopInfo?.module_queue_enabled) {
@@ -365,7 +383,7 @@ function HomePageContent({ slug }: { slug: string }) {
               disabled={!clientName}
               className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-lg mt-4"
             >
-              {clientPhoto ? 'Continuar' : 'Próximo'}
+              {(clientPhoto && clientCpf.length >= 14) ? 'Continuar' : 'Próximo'}
               <ChevronRight className="ml-2" size={18} />
             </Button>
           </section>
@@ -375,7 +393,7 @@ function HomePageContent({ slug }: { slug: string }) {
           <section className="space-y-4 flex flex-col h-full">
             <div className="space-y-1">
               <h2 className="text-2xl font-black text-slate-100 uppercase">
-                Seus <span className="text-blue-500">Dados</span>
+                {clientId ? 'Confirme seus' : 'Seus'} <span className="text-blue-500">Dados</span>
               </h2>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Para NF-e e notificações</p>
             </div>
