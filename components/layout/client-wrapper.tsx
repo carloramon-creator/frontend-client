@@ -26,6 +26,15 @@ export function ClientLayoutWrapper({
                         setTenant(parsed);
                     }
                 }
+            } else {
+                // Fallback para a home (sem slug)
+                const cached = localStorage.getItem('791_shop_info');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (parsed && parsed.name) {
+                        setTenant(parsed);
+                    }
+                }
             }
         } catch (e) { }
 
