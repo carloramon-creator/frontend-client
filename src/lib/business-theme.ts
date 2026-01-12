@@ -1,19 +1,39 @@
 export type BusinessType = 'barbershop' | 'beauty_salon';
 
-export const BUSINESS_THEMES = {
+export interface BusinessTheme {
+    primary: string;
+    primaryHex: string;
+    secondary: string;
+    accent: string;
+    gradient: string;
+    sidebarBg: string;
+    mainBg: string;
+    textBranding: string;
+    primaryMuted: string;
+}
+
+export const BUSINESS_THEMES: Record<BusinessType, BusinessTheme> = {
     barbershop: {
         primary: 'blue',
         primaryHex: '#3B82F6',
         secondary: 'slate',
         accent: 'yellow',
         gradient: 'from-blue-600 to-slate-900',
+        sidebarBg: '#0a1628',
+        mainBg: '#020617',
+        textBranding: '#3B82F6',
+        primaryMuted: 'rgba(59, 130, 246, 0.2)',
     },
     beauty_salon: {
-        primary: 'pink',
-        primaryHex: '#EC4899',
-        secondary: 'purple',
-        accent: 'amber',
-        gradient: 'from-pink-500 to-purple-900',
+        primary: 'amber',
+        primaryHex: '#B45309', // Amber-700 (Ocre)
+        secondary: 'orange',
+        accent: 'yellow',
+        gradient: 'from-[#B45309] to-[#1D1411]',
+        sidebarBg: '#1D1411',
+        mainBg: '#0F0A09',
+        textBranding: '#D97706',
+        primaryMuted: 'rgba(180, 83, 9, 0.2)',
     }
 };
 

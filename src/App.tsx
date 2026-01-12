@@ -45,7 +45,7 @@ function updateMetadata(tenant: any) {
     if (!tenant) return;
 
     // Atualiza Título
-    document.title = `${tenant.name} | 791 Barber`;
+    document.title = `${tenant.name} | 791 ${tenant.business_type === 'beauty_salon' ? 'Beauty' : 'Barber'}`;
 
     const version = '205'; // Cache buster consistente
     const iconUrl = tenant.logo_url ? `${tenant.logo_url}${tenant.logo_url.includes('?') ? '&' : '?'}v=${version}` : `/icon-192.png?v=${version}`;
@@ -164,7 +164,10 @@ function ShopPage() {
                 :root {
                     --primary: ${theme.primaryHex};
                     --primary-gradient: ${theme.gradient};
+                    --main-bg: ${theme.mainBg};
+                    --text-branding: ${theme.textBranding};
                 }
+                body { background-color: ${theme.mainBg} !important; transition: background-color 0.5s ease; }
                 .bg-primary-custom { background-color: ${theme.primaryHex}; }
                 .text-primary-custom { color: ${theme.primaryHex}; }
                 .border-primary-custom { border-color: ${theme.primaryHex}; }
