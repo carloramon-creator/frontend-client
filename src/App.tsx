@@ -163,26 +163,11 @@ function ShopPage() {
             <style>{`
                 :root {
                     --primary: ${theme.primaryHex};
-                    --primary-light: ${theme.primaryLight};
                     --primary-gradient: ${theme.gradient};
-                    --main-bg: ${theme.mainBg};
-                    --card-bg: ${theme.cardBg};
-                    --card-border: ${theme.cardBorder};
-                    --text-primary: ${theme.textPrimary};
-                    --text-secondary: ${theme.textSecondary};
-                    --text-branding: ${theme.textBranding};
                 }
-                body { background-color: ${theme.mainBg} !important; color: ${theme.textPrimary} !important; transition: background-color 0.5s ease; }
-                .shadow-2xl { box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.6) !important; }
-                .bg-slate-900 { background-color: var(--card-bg) !important; }
-                .bg-slate-950 { background-color: var(--main-bg) !important; }
-                .border-slate-800 { border-color: var(--card-border) !important; }
-                .text-slate-50, .text-slate-100, .text-white { color: var(--text-primary) !important; }
-                .text-slate-400, .text-slate-500 { color: var(--text-secondary) !important; }
-                .bg-primary-custom { background-color: ${theme.primaryHex} !important; color: var(--primary-light) !important; }
-                .text-primary-custom { color: ${theme.primaryHex} !important; }
-                .border-primary-custom { border-color: ${theme.primaryHex} !important; }
-                button.bg-primary-custom svg, .bg-primary-custom svg { color: var(--primary-light) !important; }
+                .bg-primary-custom { background-color: ${theme.primaryHex}; }
+                .text-primary-custom { color: ${theme.primaryHex}; }
+                .border-primary-custom { border-color: ${theme.primaryHex}; }
             `}</style>
 
             {/* BACKGROUND DECOR */}
