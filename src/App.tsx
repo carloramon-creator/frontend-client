@@ -134,11 +134,11 @@ function ShopPage() {
 
             {/* HEADER DINÂMICO */}
             <div className="flex flex-col items-center text-center mt-8 mb-10">
-                <div className="w-20 h-20 bg-slate-900 rounded-2xl border border-slate-800 p-3 shadow-2xl mb-4">
+                <div className="w-32 h-32 bg-slate-900 rounded-3xl border border-slate-800 p-4 shadow-2xl mb-6">
                     <img src={shopInfo?.logo_url || '/icon-192.png'} alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">{shopInfo?.name}</h1>
-                <p className="text-blue-500 font-bold text-[9px] tracking-[0.3em] uppercase mt-2">Experience Excellence</p>
+                <h1 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{shopInfo?.name}</h1>
+                <p className="text-blue-500 font-bold text-[10px] tracking-[0.4em] uppercase">Experience Excellence</p>
             </div>
 
             {/* FLUXOS */}
@@ -160,9 +160,9 @@ function ShopPage() {
 
                 {currentFlow === 'main' && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="text-center mb-6">
-                            <p className="text-slate-400 font-medium">Bem-vindo de volta, <span className="text-white font-bold">{clientData?.name?.split(' ')[0]}</span>!</p>
-                            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">O que deseja fazer hoje?</p>
+                        <div className="text-center mb-8">
+                            <p className="text-slate-400 font-medium text-lg leading-relaxed">Bem-vindo de volta, <br /><span className="text-white font-black text-2xl">{clientData?.name?.split(' ')[0]}</span>!</p>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-3">O que deseja fazer hoje?</p>
                         </div>
 
                         {shopInfo?.module_queue_enabled && (

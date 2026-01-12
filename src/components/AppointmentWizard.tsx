@@ -4,8 +4,10 @@ import {
     ChevronRight,
     ChevronLeft,
     User,
+    Users,
     Scissors,
     Loader2,
+    CheckCircle2,
     CalendarCheck,
 } from 'lucide-react';
 import { format, addDays, isSameDay } from 'date-fns';
@@ -131,34 +133,50 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
                     {step === 3 && "Data e Horário"}
                     {step === 4 && "Confirmar Agendamento"}
                 </h3>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                    {[1, 2, 3, 4].map(i => (
-                        <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${step === i ? "bg-blue-500 w-6" : step > i ? "bg-blue-900" : "bg-slate-800"}`} />
-                    ))}
-                </div>
+                {step === 3 && (
+                    <div className="flex items-center justify-center gap-4 mt-2 mb-4">
+                        <button onClick={() => setSelectedDate(addDays(selectedDate, -30))} className="p-2 hover:bg-white/10 rounded-full">
+                            <ChevronLeft className="w-5 h-5 text-slate-400" />
+                        </button>
+                        <span className="text-sm font-bold uppercase text-slate-300 capitalize">{format(selectedDate, 'MMMM yyyy', { locale: ptBR })}</span>
+                        <button onClick={() => setSelectedDate(addDays(selectedDate, 30))} className="p-2 hover:bg-white/10 rounded-full">
+                            <ChevronRight className="w-5 h-5 text-slate-400" />
+                        </button>
+                    </div>
+                )}
+                {step !== 3 && (
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${step === i ? "bg-blue-500 w-6" : step > i ? "bg-blue-900" : "bg-slate-800"}`} />
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div className="flex-1 overflow-y-auto mb-6">
+            <div className="flex-1 overflow-y-auto mb-6 px-1">
                 {step === 1 && (
-                    <div className="grid gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         {services.map(s => {
                             const isSelected = selectedServices.some(sel => sel.id === s.id);
                             return (
                                 <div
                                     key={s.id}
                                     onClick={() => isSelected ? setSelectedServices(selectedServices.filter(sel => sel.id !== s.id)) : setSelectedServices([...selectedServices, s])}
-                                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${isSelected ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
+                                    className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between h-24 ${isSelected ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? "bg-blue-500 text-white" : "bg-slate-800 text-slate-500"}`}>
-                                            <Scissors size={20} />
+                                    <div className="flex justify-between items-start">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? "bg-blue-500 text-white" : "bg-slate-800 text-slate-500"}`}>
+                                            <Scissors size={16} />
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-slate-100">{s.name}</p>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase">{s.duration_minutes || 30} MIN</p>
+                                        {isSelected && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-slate-100 text-xs leading-tight line-clamp-2">{s.name}</p>
+                                        <div className="flex justify-between items-end mt-1">
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase">{s.duration_minutes || 30} min</p>
+                                            <p className="font-black text-blue-400 text-xs">R$ {s.price.toFixed(0)}</p>
                                         </div>
                                     </div>
-                                    <p className="font-black text-blue-400">R$ {s.price.toFixed(2)}</p>
                                 </div>
                             );
                         })}
@@ -167,53 +185,103 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
 
                 {step === 2 && (
                     <div className="grid gap-3">
-                        {barbers.map(b => (
-                            <div
-                                key={b.id}
-                                onClick={() => { setSelectedBarber(b); setStep(3); }}
-                                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedBarber?.id === b.id ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden shrink-0">
-                                        {b.photo_url ? <img src={b.photo_url} alt="" className="w-full h-full object-cover" /> : <User className="w-full h-full p-3 text-slate-600" />}
-                                    </div>
-                                    <h4 className="font-black text-slate-100 text-lg uppercase italic">{b.nickname || b.name}</h4>
-                                </div>
-                                <ChevronRight className="text-slate-800" size={20} />
+                        <button
+                            onClick={() => { setSelectedBarber(null); setStep(3); }}
+                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${!selectedBarber ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
+                        >
+                            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-700">
+                                <Users className="w-6 h-6 text-slate-400" />
                             </div>
-                        ))}
+                            <div className="text-left">
+                                <h4 className="font-black text-slate-100 text-sm uppercase">Qualquer Profissional</h4>
+                                <p className="text-xs text-slate-500">Maior disponibilidade de horários</p>
+                            </div>
+                            {!selectedBarber && <CheckCircle2 className="ml-auto text-blue-500" size={20} />}
+                        </button>
+
+                        {barbers
+                            .filter(b => selectedServices.every(s => b.service_ids?.includes(s.id)))
+                            .map(b => (
+                                <div
+                                    key={b.id}
+                                    onClick={() => { setSelectedBarber(b); setStep(3); }}
+                                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedBarber?.id === b.id ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden shrink-0">
+                                            {b.photo_url ? <img src={b.photo_url} alt="" className="w-full h-full object-cover" /> : <User className="w-full h-full p-3 text-slate-600" />}
+                                        </div>
+                                        <h4 className="font-black text-slate-100 text-sm uppercase">{b.nickname || b.name}</h4>
+                                    </div>
+                                    <ChevronRight className="text-slate-800" size={20} />
+                                </div>
+                            ))}
+                        {barbers.filter(b => selectedServices.every(s => b.service_ids?.includes(s.id))).length === 0 && (
+                            <div className="text-center p-8 text-slate-500 text-sm">
+                                Nenhum profissional disponível para todos os serviços selecionados.
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {step === 3 && (
                     <div className="space-y-6">
-                        <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-1 no-scrollbar">
-                            {[0, 1, 2, 3, 4, 5, 6, 7].map(offset => {
-                                const day = addDays(new Date(), offset);
-                                const isSelected = isSameDay(day, selectedDate);
+                        {/* Calendar Grid */}
+                        <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                            {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map(d => (
+                                <span key={d} className="text-[10px] font-bold text-slate-600 uppercase py-2">{d}</span>
+                            ))}
+                            {Array.from({ length: 35 }).map((_, i) => {
+                                const startOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                                const startDay = startOfMonth.getDay(); // 0 = Sunday
+                                const dayOffset = i - startDay;
+                                const date = addDays(startOfMonth, dayOffset);
+                                const isCurrentMonth = date.getMonth() === selectedDate.getMonth();
+                                const isSelected = isSameDay(date, selectedDate);
+                                const isPast = date < new Date() && !isSameDay(date, new Date());
+
+                                if (!isCurrentMonth) return <div key={i} />;
+
                                 return (
-                                    <div
-                                        key={offset}
-                                        onClick={() => { setSelectedDate(day); setSelectedTime(null); }}
-                                        className={`flex flex-col items-center justify-center min-w-[65px] h-20 rounded-2xl border-2 transition-all cursor-pointer ${isSelected ? "bg-blue-600 border-blue-400 text-white shadow-lg" : "bg-slate-900 border-slate-800 text-slate-400"}`}
+                                    <button
+                                        key={i}
+                                        disabled={isPast}
+                                        onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
+                                        className={`
+                                            h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all relative
+                                            ${isSelected ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50 z-10 scale-110" : "text-slate-300 hover:bg-slate-800"}
+                                            ${isPast ? "opacity-20 cursor-not-allowed" : ""}
+                                        `}
                                     >
-                                        <span className="text-[9px] uppercase font-black opacity-60">{format(day, 'EEE', { locale: ptBR })}</span>
-                                        <span className="text-2xl font-black">{format(day, 'dd')}</span>
-                                    </div>
+                                        {format(date, 'd')}
+                                        {isSelected && <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />}
+                                    </button>
                                 );
                             })}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2">
-                            {availableSlots.map(slot => (
-                                <div
-                                    key={slot.time}
-                                    onClick={() => slot.available && setSelectedTime(slot.time)}
-                                    className={`py-3 rounded-xl border-2 text-center transition-all cursor-pointer font-mono font-bold ${!slot.available ? "opacity-30 border-slate-900 bg-slate-950 text-slate-800 pointer-events-none" : selectedTime === slot.time ? "bg-blue-500 border-blue-400 text-white shadow-lg" : "bg-slate-900 border-slate-800 text-blue-500"}`}
-                                >
-                                    {slot.time}
+                        <div className="h-px bg-slate-800 w-full" />
+
+                        {/* Slots */}
+                        <div className="space-y-3 animate-in slide-in-from-bottom-4 duration-500">
+                            <p className="text-center text-xs font-bold uppercase text-slate-500 tracking-widest">Horários Disponíveis</p>
+                            {availableSlots.length > 0 ? (
+                                <div className="grid grid-cols-4 gap-2">
+                                    {availableSlots.map(slot => (
+                                        <div
+                                            key={slot.time}
+                                            onClick={() => slot.available && setSelectedTime(slot.time)}
+                                            className={`py-2 rounded-xl border-2 text-center transition-all cursor-pointer font-mono font-bold text-xs ${!slot.available ? "opacity-30 border-slate-900 bg-slate-950 text-slate-800 pointer-events-none" : selectedTime === slot.time ? "bg-blue-500 border-blue-400 text-white shadow-lg" : "bg-slate-900 border-slate-800 text-blue-500"}`}
+                                        >
+                                            {slot.time}
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            ) : (
+                                <div className="text-center py-8 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                                    <p className="text-slate-500 text-xs">Selecione uma data para ver os horários.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -226,7 +294,7 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
                             </div>
                             <div>
                                 <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Profissional</p>
-                                <p className="text-xl font-black text-slate-100 uppercase italic leading-none">{selectedBarber?.nickname || selectedBarber?.name}</p>
+                                <p className="text-xl font-black text-slate-100 uppercase leading-none">{selectedBarber?.nickname || selectedBarber?.name || 'Qualquer Profissional'}</p>
                             </div>
                         </div>
 
@@ -272,7 +340,7 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
                             else if (step === 3 && selectedTime) setStep(4);
                         }}
                         disabled={isSubmitting || (step === 1 && selectedServices.length === 0) || (step === 2 && !selectedBarber) || (step === 3 && !selectedTime)}
-                        className={`h-14 flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 pointer-events-none' : ''}`}
+                        className={`h-14 flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 pointer-events-none' : ''}`}
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : step === 4 ? "Confirmar" : "Próximo"}
                         {step < 4 && !isSubmitting && <ChevronRight size={18} />}
