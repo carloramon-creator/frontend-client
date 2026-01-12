@@ -136,7 +136,7 @@ function ShopPage() {
                 <div className="w-20 h-20 bg-slate-900 rounded-2xl border border-slate-800 p-3 shadow-2xl mb-4">
                     <img src={shopInfo?.logo_url || '/icon-192.png'} alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <h1 className="text-2xl font-black tracking-tighter uppercase italic leading-none">{shopInfo?.name}</h1>
+                <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">{shopInfo?.name}</h1>
                 <p className="text-blue-500 font-bold text-[9px] tracking-[0.3em] uppercase mt-2">Experience Excellence</p>
             </div>
 
