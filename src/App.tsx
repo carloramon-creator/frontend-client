@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import { Api } from './lib/api';
-import { User, ChevronRight, Scissors, Clock, CheckCircle2, Calendar } from 'lucide-react';
+import { User, Scissors, Clock, CheckCircle2, Calendar } from 'lucide-react';
 import { AppointmentWizard } from './components/AppointmentWizard';
 import { QueueWizard } from './components/QueueWizard';
 import { RegistrationForm } from './components/RegistrationForm';
