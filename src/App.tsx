@@ -132,17 +132,18 @@ function ShopPage() {
             {/* BACKGROUND DECOR */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-64 bg-blue-600/5 blur-[120px] rounded-full -z-10" />
 
-            {/* HEADER DINÂMICO */}
-            <div className="flex flex-col items-center text-center mt-8 mb-10">
-                <div className="w-32 h-32 bg-slate-900 rounded-3xl border border-slate-800 p-4 shadow-2xl mb-6">
-                    <img src={shopInfo?.logo_url || '/icon-192.png'} alt="Logo" className="w-full h-full object-contain" />
-                </div>
-                <h1 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{shopInfo?.name}</h1>
-                <p className="text-blue-500 font-bold text-[10px] tracking-[0.4em] uppercase">Experience Excellence</p>
-            </div>
+            {/* CONTEÚDO CENTRALIZADO (HEADER + FLUXOS) */}
+            <div className="flex-1 flex flex-col justify-center w-full max-w-md mx-auto z-10">
 
-            {/* FLUXOS */}
-            <div className="flex-1 flex flex-col justify-center">
+                {/* HEADER */}
+                <div className="flex flex-col items-center text-center mb-8">
+                    <div className="w-32 h-32 bg-slate-900 rounded-3xl border border-slate-800 p-4 shadow-2xl mb-6">
+                        <img src={shopInfo?.logo_url || '/icon-192.png'} alt="Logo" className="w-full h-full object-contain" />
+                    </div>
+                    <h1 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{shopInfo?.name}</h1>
+                    <p className="text-blue-500 font-bold text-[10px] tracking-[0.4em] uppercase">Experience Excellence</p>
+                </div>
+
                 {currentFlow === 'registration' && (
                     <RegistrationForm
                         slug={slug!}

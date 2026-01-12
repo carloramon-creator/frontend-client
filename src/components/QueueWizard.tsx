@@ -89,7 +89,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
     }
 
     return (
-        <div className="flex-1 flex flex-col justify-center p-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 animate-in fade-in slide-in-from-bottom-8 duration-500 w-full max-w-md mx-auto h-full">
             {/* Header Steps */}
             <div className="flex items-center gap-2 mb-8">
                 <button onClick={onCancel} className="p-2 -ml-2 hover:bg-white/5 rounded-full text-slate-400">
