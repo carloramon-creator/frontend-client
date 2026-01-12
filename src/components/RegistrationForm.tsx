@@ -4,16 +4,17 @@ import { User, Phone, FileText, Camera, Loader2, Check } from 'lucide-react';
 interface RegistrationFormProps {
     slug: string;
     clientId?: string;
+    initialData?: any;
     onComplete: (data: any) => void;
 }
 
-export function RegistrationForm({ slug, clientId, onComplete }: RegistrationFormProps) {
+export function RegistrationForm({ slug, clientId, initialData, onComplete }: RegistrationFormProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        cpf: '',
-        photo_url: ''
+        name: initialData?.name || '',
+        phone: initialData?.phone || '',
+        cpf: initialData?.cpf || '',
+        photo_url: initialData?.photo_url || ''
     });
 
     async function handleSubmit(e: React.FormEvent) {
@@ -34,7 +35,7 @@ export function RegistrationForm({ slug, clientId, onComplete }: RegistrationFor
     }
 
     return (
-        <div className="flex-1 flex flex-col p-6 animate-in fade-in duration-500">
+        <div className="flex-1 flex flex-col justify-center p-6 animate-in fade-in duration-500">
             <div className="text-center mb-10">
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic">Quase lá!</h2>
                 <p className="text-slate-500 text-sm font-medium">Complete seu perfil para um atendimento premium.</p>

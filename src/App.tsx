@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-
 import { Api } from './lib/api';
 import { User, ChevronRight, Scissors, Clock, CheckCircle2 } from 'lucide-react';
 import { AppointmentWizard } from './components/AppointmentWizard';
+import { QueueWizard } from './components/QueueWizard';
 import { RegistrationForm } from './components/RegistrationForm';
 
 // --- COMPONENTES AUXILIARES ---
@@ -141,11 +142,12 @@ function ShopPage() {
             </div>
 
             {/* FLUXOS */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col justify-center">
                 {currentFlow === 'registration' && (
                     <RegistrationForm
                         slug={slug!}
                         clientId={clientId || undefined}
+                        initialData={clientData}
                         onComplete={(data) => {
                             setClientData(data);
                             // Decide após registro
@@ -174,7 +176,7 @@ function ShopPage() {
                                             <Scissors size={24} />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-black uppercase italic group-hover:text-blue-400 transition-colors">Fila Digital</h3>
+                                            <h3 className="text-lg font-black uppercase group-hover:text-blue-400 transition-colors">Fila Digital</h3>
                                             <p className="text-xs text-slate-500 font-medium">Entre na fila agora mesmo.</p>
                                         </div>
                                     </div>
@@ -194,7 +196,7 @@ function ShopPage() {
                                             <Clock size={24} />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-black uppercase italic group-hover:text-emerald-400 transition-colors">Agendamento</h3>
+                                            <h3 className="text-lg font-black uppercase group-hover:text-emerald-400 transition-colors">Agendamento</h3>
                                             <p className="text-xs text-slate-500 font-medium">Reserve seu horário favorito.</p>
                                         </div>
                                     </div>
@@ -214,16 +216,26 @@ function ShopPage() {
                     />
                 )}
 
+                {currentFlow === 'queue' && (
+                    <QueueWizard
+                        slug={slug!}
+                        shopInfo={shopInfo}
+                        clientData={clientData}
+                        onCancel={() => setCurrentFlow('main')}
+                        onComplete={() => setCurrentFlow('success')}
+                    />
+                )}
+
                 {currentFlow === 'success' && (
                     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in-95 duration-500">
                         <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/20">
                             <CheckCircle2 className="text-white w-10 h-10" />
                         </div>
-                        <h2 className="text-3xl font-black uppercase tracking-tighter italic mb-4">Sucesso!</h2>
+                        <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Sucesso!</h2>
                         <p className="text-slate-400 font-medium mb-12">Seu horário foi reservado. Você receberá uma confirmação em breve.</p>
                         <button
                             onClick={() => setCurrentFlow('main')}
-                            className="px-12 py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-black uppercase italic tracking-widest transition-all"
+                            className="px-12 py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-black uppercase tracking-widest transition-all"
                         >
                             Voltar
                         </button>
@@ -245,7 +257,7 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/:slug" element={<ShopPage />} />
-                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs italic">Selecione uma barbearia para continuar</div>} />
+                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Selecione uma barbearia para continuar</div>} />
             </Routes>
         </BrowserRouter>
     );
