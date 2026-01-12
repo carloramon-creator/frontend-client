@@ -188,24 +188,24 @@ function ShopPage() {
                 )}
 
                 {currentFlow === 'main' && (
-                    <div className="flex-1 flex flex-col justify-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-                        <div className="text-center mb-8">
-                            <p className="text-slate-400 font-medium text-lg leading-relaxed">Bem-vindo de volta, <br /><span className="text-white font-black text-2xl">{clientData?.name?.split(' ')[0]}</span>!</p>
-                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-3">O que deseja fazer hoje?</p>
+                    <div className="flex-1 flex flex-col justify-center space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-6">
+                        <div className="text-center mb-4">
+                            <p className="text-slate-400 font-medium text-base leading-relaxed">Bem-vindo de volta, <br /><span className="text-white font-black text-xl">{clientData?.name?.split(' ')[0]}</span>!</p>
+                            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">O que deseja fazer hoje?</p>
                         </div>
 
                         {shopInfo?.module_queue_enabled && (
                             <button
                                 onClick={() => setCurrentFlow('queue')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full transition-all active:scale-[0.98] hover:border-blue-500/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-blue-500/50"
                             >
-                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-3">
-                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-2 group-hover:scale-110 transition-transform">
-                                        <Scissors size={32} />
+                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-2">
+                                    <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 mb-1 group-hover:scale-110 transition-transform">
+                                        <Scissors size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-black uppercase group-hover:text-blue-400 transition-colors">Fila Digital</h3>
-                                        <p className="text-sm text-yellow-500 font-bold mt-1">Entre na fila agora mesmo.</p>
+                                        <h3 className="text-xl font-black uppercase group-hover:text-blue-400 transition-colors">Fila Digital</h3>
+                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">Entre na fila agora mesmo.</p>
                                     </div>
                                 </div>
                             </button>
@@ -214,15 +214,15 @@ function ShopPage() {
                         {shopInfo?.module_appointments_enabled && (
                             <button
                                 onClick={() => setCurrentFlow('appointment')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full transition-all active:scale-[0.98] hover:border-emerald-500/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-emerald-500/50"
                             >
-                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-3">
-                                    <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-2 group-hover:scale-110 transition-transform">
-                                        <Clock size={32} />
+                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-2">
+                                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-1 group-hover:scale-110 transition-transform">
+                                        <Clock size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-black uppercase group-hover:text-emerald-400 transition-colors">Agendamento</h3>
-                                        <p className="text-sm text-yellow-500 font-bold mt-1">Reserve seu horário favorito.</p>
+                                        <h3 className="text-xl font-black uppercase group-hover:text-emerald-400 transition-colors">Agendamento</h3>
+                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">Reserve seu horário favorito.</p>
                                     </div>
                                 </div>
                             </button>
@@ -231,15 +231,15 @@ function ShopPage() {
                         {shopInfo?.module_appointments_enabled && clientData && hasPendingAppointments && (
                             <button
                                 onClick={() => setCurrentFlow('my-appointments')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full transition-all active:scale-[0.98] hover:border-slate-600/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-slate-600/50"
                             >
-                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-3">
-                                    <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 mb-2 group-hover:scale-110 transition-transform">
-                                        <Calendar size={32} />
+                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-2">
+                                    <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 mb-1 group-hover:scale-110 transition-transform">
+                                        <Calendar size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-black uppercase group-hover:text-slate-300 transition-colors">Meus Agendamentos</h3>
-                                        <p className="text-sm text-yellow-500 font-bold mt-1">Visualize seus horários marcados.</p>
+                                        <h3 className="text-xl font-black uppercase group-hover:text-slate-300 transition-colors">Meus Agendamentos</h3>
+                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">Visualize seus horários marcados.</p>
                                     </div>
                                 </div>
                             </button>
