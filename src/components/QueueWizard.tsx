@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Api } from '../lib/api';
 import { User, CheckCircle2, ChevronRight, Loader2, Users } from 'lucide-react';
+import { getBusinessTexts } from '../lib/business-dictionary';
 
 interface QueueWizardProps {
     slug: string;
@@ -11,6 +12,7 @@ interface QueueWizardProps {
 }
 
 export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }: QueueWizardProps) {
+    const texts = getBusinessTexts(shopInfo?.business_type);
     const [step, setStep] = useState<'barber' | 'confirm' | 'ticket'>('barber');
     const [barbers, setBarbers] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -59,7 +61,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
     if (step === 'ticket') {
         return (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in-95 duration-500">
-                <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mb-6 shadow-2xl shadow-blue-600/20 animate-bounce">
+                <div className="w-24 h-24 bg-primary-custom rounded-full flex items-center justify-center mb-6 shadow-2xl animate-bounce">
                     <span className="text-4xl font-black text-white">#{ticket?.position || '1'}</span>
                 </div>
                 <h2 className="text-3xl font-black uppercase tracking-tighter mb-2">Você está na fila!</h2>
@@ -69,7 +71,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
 
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-xs mb-8">
                     <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-4">
-                        <span className="text-slate-500 text-xs uppercase font-bold">Barbeiro</span>
+                        <span className="text-slate-500 text-xs uppercase font-bold">{texts.professional}</span>
                         <span className="text-slate-200 font-bold">{selectedBarber?.name || 'Qualquer um'}</span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -102,34 +104,34 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
             <div className="flex-1 space-y-6">
 
                 {/* User Info Card */}
-                <div className="bg-blue-600/10 border border-blue-600/20 p-4 rounded-2xl flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-500">
+                <div className="bg-primary-custom/10 border border-primary-custom/20 p-4 rounded-2xl flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-custom">
                         {clientData?.photo_url ? (
                             <img src={clientData.photo_url} className="w-full h-full object-cover" />
                         ) : (
-                            <User className="w-6 h-6 m-auto text-blue-200" />
+                            <User className="w-6 h-6 m-auto text-primary-custom/50" />
                         )}
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-blue-200">{clientData?.name}</p>
-                        <p className="text-xs text-blue-400">{clientData?.phone}</p>
+                        <p className="text-sm font-bold text-slate-100">{clientData?.name}</p>
+                        <p className="text-xs text-slate-500">{clientData?.phone}</p>
                     </div>
                 </div>
 
                 {/* Barber Selection */}
                 <div className="space-y-3">
-                    <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-1">Escolha o Profissional</label>
+                    <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-1">Escolha o {texts.professional}</label>
 
                     <button
                         onClick={() => setSelectedBarber(null)}
-                        className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${!selectedBarber ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                        className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${!selectedBarber ? 'bg-primary-custom border-primary-custom text-white shadow-lg shadow-primary-custom/20' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                     >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${!selectedBarber ? 'bg-white/20' : 'bg-slate-800'}`}>
                             <Users size={20} />
                         </div>
                         <div className="text-left flex-1">
-                            <p className="font-bold uppercase text-sm">Qualquer Profissional</p>
-                            <p className={`text-[10px] ${!selectedBarber ? 'text-blue-200' : 'text-slate-600'}`}>Menor tempo de espera</p>
+                            <p className="font-bold uppercase text-sm">Qualquer {texts.professional}</p>
+                            <p className={`text-[10px] ${!selectedBarber ? 'opacity-80' : 'text-slate-600'}`}>Menor tempo de espera</p>
                         </div>
                         {!selectedBarber && <CheckCircle2 size={20} />}
                     </button>
@@ -137,14 +139,14 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                     {loading ? (
                         <div className="text-center py-8 text-slate-600 flex flex-col items-center gap-2">
                             <Loader2 className="animate-spin" />
-                            <span className="text-xs">Carregando barbeiros...</span>
+                            <span className="text-xs">Carregando {texts.professionals.toLowerCase()}...</span>
                         </div>
                     ) : (
                         barbers.map(barber => (
                             <button
                                 key={barber.id}
                                 onClick={() => setSelectedBarber(barber)}
-                                className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${selectedBarber?.id === barber.id ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                                className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${selectedBarber?.id === barber.id ? 'bg-primary-custom border-primary-custom text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                             >
                                 <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-slate-800">
                                     {barber.photo_url ? (
@@ -155,7 +157,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                                 </div>
                                 <div className="text-left flex-1">
                                     <p className="font-bold uppercase text-sm">{barber.name}</p>
-                                    <p className={`text-[10px] ${selectedBarber?.id === barber.id ? 'text-blue-200' : 'text-slate-600'}`}>{barber.is_online ? 'Online' : 'Offline'}</p>
+                                    <p className={`text-[10px] ${selectedBarber?.id === barber.id ? 'opacity-80' : 'text-slate-600'}`}>{barber.is_online ? 'Online' : 'Offline'}</p>
                                 </div>
                                 {selectedBarber?.id === barber.id && <CheckCircle2 size={20} />}
                             </button>
@@ -169,7 +171,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                 <button
                     onClick={handleEnterQueue}
                     disabled={loading}
-                    className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-wider text-lg rounded-2xl shadow-xl shadow-blue-500/10 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-16 bg-primary-custom hover:opacity-90 text-white font-black uppercase tracking-wider text-lg rounded-2xl shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {loading ? <Loader2 className="animate-spin" /> : 'Entrar na Fila'}
                 </button>

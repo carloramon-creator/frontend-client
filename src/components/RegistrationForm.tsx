@@ -44,38 +44,38 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
                     <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={20} />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-custom transition-colors" size={20} />
                         <input
                             required
                             type="text"
                             placeholder="Nome Completo"
                             value={formData.name}
                             onChange={e => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-blue-500 outline-none transition-all font-bold"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
                         />
                     </div>
 
                     <div className="relative group">
-                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={20} />
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-custom transition-colors" size={20} />
                         <input
                             required
                             type="tel"
                             placeholder="Telefone / WhatsApp"
                             value={formData.phone}
                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-blue-500 outline-none transition-all font-bold"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
                         />
                     </div>
 
                     <div className="relative group">
-                        <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={20} />
+                        <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-custom transition-colors" size={20} />
                         <input
                             required
                             type="text"
                             placeholder="CPF (Para notas fiscais)"
                             value={formData.cpf}
                             onChange={e => setFormData({ ...formData, cpf: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-blue-500 outline-none transition-all font-bold"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
                         />
                     </div>
                 </div>
@@ -85,7 +85,7 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
                         {formData.photo_url ? (
                             <img src={formData.photo_url} className="w-full h-full object-cover" />
                         ) : (
-                            <Camera className="text-slate-700 group-hover:text-blue-500 transition-colors" size={32} />
+                            <Camera className="text-slate-700 group-hover:text-primary-custom transition-colors" size={32} />
                         )}
                     </div>
                     <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest">Sua Foto de Perfil</p>
@@ -93,7 +93,7 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
 
                 <button
                     disabled={loading}
-                    className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/10 flex items-center justify-center gap-2"
+                    className="w-full h-16 bg-primary-custom hover:opacity-90 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-xl flex items-center justify-center gap-2"
                 >
                     {loading ? <Loader2 className="animate-spin" /> : <><Check size={20} /> Concluir Cadastro</>}
                 </button>

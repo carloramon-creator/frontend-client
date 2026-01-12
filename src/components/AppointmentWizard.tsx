@@ -10,6 +10,7 @@ import {
     CheckCircle2,
     CalendarCheck,
 } from 'lucide-react';
+import { getBusinessTexts } from '../lib/business-dictionary';
 import { format, addDays, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -25,9 +26,11 @@ interface AppointmentWizardProps {
     onComplete: () => void;
     onCancel: () => void;
     onViewAppointments?: () => void;
+    business_type?: any;
 }
 
-export function AppointmentWizard({ slug, clientData, hasPendingAppointments, onComplete, onCancel, onViewAppointments }: AppointmentWizardProps) {
+export function AppointmentWizard({ slug, clientData, hasPendingAppointments, onComplete, onCancel, onViewAppointments, business_type }: AppointmentWizardProps) {
+    const texts = getBusinessTexts(business_type);
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,7 +119,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+                <Loader2 className="w-10 h-10 animate-spin text-primary-custom" />
                 <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Carregando opções...</p>
             </div>
         );
@@ -130,8 +133,8 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
             {/* Step Header */}
             <div className="text-center mb-6">
                 <h3 className="text-xl font-black text-slate-100 uppercase tracking-tight">
-                    {step === 1 && "Escolha os Serviços"}
-                    {step === 2 && "Escolha o Profissional"}
+                    {step === 1 && `Escolha os ${texts.services}`}
+                    {step === 2 && `Escolha o ${texts.professional}`}
                     {step === 3 && "Data e Horário"}
                     {step === 4 && "Confirmar Agendamento"}
                 </h3>
@@ -149,7 +152,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                 {step !== 3 && (
                     <div className="flex items-center justify-center gap-2 mt-2">
                         {[1, 2, 3, 4].map(i => (
-                            <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${step === i ? "bg-blue-500 w-6" : step > i ? "bg-blue-900" : "bg-slate-800"}`} />
+                            <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${step === i ? "bg-primary-custom w-6" : step > i ? "opacity-30 bg-primary-custom" : "bg-slate-800"}`} />
                         ))}
                     </div>
                 )}
@@ -174,19 +177,19 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                 <div
                                     key={s.id}
                                     onClick={() => isSelected ? setSelectedServices(selectedServices.filter(sel => sel.id !== s.id)) : setSelectedServices([...selectedServices, s])}
-                                    className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between h-24 ${isSelected ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
+                                    className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between h-24 ${isSelected ? "bg-primary-custom/10 border-primary-custom" : "bg-slate-900 border-slate-800"}`}
                                 >
                                     <div className="flex justify-between items-start">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? "bg-blue-500 text-white" : "bg-slate-800 text-slate-500"}`}>
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? "bg-primary-custom text-white" : "bg-slate-800 text-slate-500"}`}>
                                             <Scissors size={16} />
                                         </div>
-                                        {isSelected && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+                                        {isSelected && <div className="w-2 h-2 bg-primary-custom rounded-full" />}
                                     </div>
                                     <div>
                                         <p className="font-bold text-slate-100 text-xs leading-tight line-clamp-2">{s.name}</p>
                                         <div className="flex justify-between items-end mt-1">
                                             <p className="text-[10px] text-slate-500 font-bold uppercase">{s.duration_minutes || 30} min</p>
-                                            <p className="font-black text-blue-400 text-xs">R$ {s.price.toFixed(0)}</p>
+                                            <p className="font-black text-primary-custom text-xs">R$ {s.price.toFixed(0)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -199,16 +202,16 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                     <div className="grid gap-3">
                         <button
                             onClick={() => { setSelectedBarber(null); setStep(3); }}
-                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${!selectedBarber ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
+                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${!selectedBarber ? "bg-primary-custom/10 border-primary-custom" : "bg-slate-900 border-slate-800"}`}
                         >
                             <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-700">
                                 <Users className="w-6 h-6 text-slate-400" />
                             </div>
                             <div className="text-left">
-                                <h4 className="font-black text-slate-100 text-sm uppercase">Qualquer Profissional</h4>
+                                <h4 className="font-black text-slate-100 text-sm uppercase">Qualquer {texts.professional}</h4>
                                 <p className="text-xs text-slate-500">Maior disponibilidade de horários</p>
                             </div>
-                            {!selectedBarber && <CheckCircle2 className="ml-auto text-blue-500" size={20} />}
+                            {!selectedBarber && <CheckCircle2 className="ml-auto text-primary-custom" size={20} />}
                         </button>
 
                         {barbers
@@ -217,7 +220,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                 <div
                                     key={b.id}
                                     onClick={() => { setSelectedBarber(b); setStep(3); }}
-                                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedBarber?.id === b.id ? "bg-blue-600/10 border-blue-500" : "bg-slate-900 border-slate-800"}`}
+                                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedBarber?.id === b.id ? "bg-primary-custom/10 border-primary-custom" : "bg-slate-900 border-slate-800"}`}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden shrink-0">
@@ -230,7 +233,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                             ))}
                         {barbers.filter(b => selectedServices.every(s => b.service_ids?.includes(s.id))).length === 0 && (
                             <div className="text-center p-8 text-slate-500 text-sm">
-                                Nenhum profissional disponível para todos os serviços selecionados.
+                                Nenhum {texts.professional.toLowerCase()} disponível para todos os {texts.services.toLowerCase()} selecionados.
                             </div>
                         )}
                     </div>
@@ -261,7 +264,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                         onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
                                         className={`
                                             h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all relative
-                                            ${isSelected ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50 z-10 scale-110" : "text-slate-300 hover:bg-slate-800"}
+                                            ${isSelected ? "bg-primary-custom text-white shadow-lg shadow-primary-custom/50 z-10 scale-110" : "text-slate-300 hover:bg-slate-800"}
                                             ${isPast ? "opacity-20 cursor-not-allowed" : ""}
                                         `}
                                     >
@@ -283,7 +286,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                         <div
                                             key={slot.time}
                                             onClick={() => slot.available && setSelectedTime(slot.time)}
-                                            className={`py-2 rounded-xl border-2 text-center transition-all cursor-pointer font-mono font-bold text-xs ${!slot.available ? "opacity-30 border-slate-900 bg-slate-950 text-slate-800 pointer-events-none" : selectedTime === slot.time ? "bg-blue-500 border-blue-400 text-white shadow-lg" : "bg-slate-900 border-slate-800 text-blue-500"}`}
+                                            className={`py-2 rounded-xl border-2 text-center transition-all cursor-pointer font-mono font-bold text-xs ${!slot.available ? "opacity-30 border-slate-900 bg-slate-950 text-slate-800 pointer-events-none" : selectedTime === slot.time ? "bg-primary-custom border-primary-custom text-white shadow-lg" : "bg-slate-900 border-slate-800 text-primary-custom"}`}
                                         >
                                             {slot.time}
                                         </div>
@@ -305,8 +308,8 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                 {selectedBarber?.photo_url ? <img src={selectedBarber.photo_url} alt="" className="w-full h-full object-cover" /> : <User className="p-3 text-slate-600" />}
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Profissional</p>
-                                <p className="text-xl font-black text-slate-100 uppercase leading-none">{selectedBarber?.nickname || selectedBarber?.name || 'Qualquer Profissional'}</p>
+                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{texts.professional}</p>
+                                <p className="text-xl font-black text-slate-100 uppercase leading-none">{selectedBarber?.nickname || selectedBarber?.name || `Qualquer ${texts.professional}`}</p>
                             </div>
                         </div>
 
@@ -319,7 +322,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                 {selectedServices.map(s => (
                                     <div key={s.id} className="flex justify-between text-sm">
                                         <span className="text-slate-400 font-medium">{s.name}</span>
-                                        <span className="font-mono text-blue-400">R$ {s.price.toFixed(2)}</span>
+                                        <span className="font-mono text-primary-custom font-bold">R$ {s.price.toFixed(2)}</span>
                                     </div>
                                 ))}
                             </div>
@@ -329,7 +332,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] text-slate-500 font-bold uppercase">Total</p>
-                                    <p className="text-3xl font-black text-blue-500 tracking-tighter">R$ {totalPrice.toFixed(2)}</p>
+                                    <p className="text-3xl font-black text-primary-custom tracking-tighter">R$ {totalPrice.toFixed(2)}</p>
                                 </div>
                             </div>
                         </div>
@@ -352,7 +355,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                             else if (step === 3 && selectedTime) setStep(4);
                         }}
                         disabled={isSubmitting || (step === 1 && selectedServices.length === 0) || (step === 2 && !selectedBarber) || (step === 3 && !selectedTime)}
-                        className={`h-14 flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 pointer-events-none' : ''}`}
+                        className={`h-14 flex-[2] bg-primary-custom hover:opacity-90 text-white font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 pointer-events-none' : ''}`}
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : step === 4 ? "Confirmar" : "Próximo"}
                         {step < 4 && !isSubmitting && <ChevronRight size={18} />}

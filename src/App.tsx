@@ -2,18 +2,21 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import { Api } from './lib/api';
 import { User, Scissors, Clock, CheckCircle2, Calendar } from 'lucide-react';
+import { cn } from './lib/utils';
 import { AppointmentWizard } from './components/AppointmentWizard';
 import { QueueWizard } from './components/QueueWizard';
 import { RegistrationForm } from './components/RegistrationForm';
 import { MyAppointments } from './components/MyAppointments';
+import { getBusinessTexts } from './lib/business-dictionary';
+import { getBusinessTheme } from './lib/business-theme';
 
 // --- COMPONENTES AUXILIARES ---
 
 function LoadingScreen() {
     return (
         <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
-            <p className="text-slate-400 font-medium animate-pulse">Sintonizando barbearia...</p>
+            <div className="w-16 h-16 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin mb-4" />
+            <p className="text-slate-400 font-medium animate-pulse">Sintonizando estabelecimento...</p>
         </div>
     );
 }
@@ -26,7 +29,7 @@ function ErrorScreen({ slug }: { slug: string }) {
             </div>
             <h1 className="text-2xl font-bold mb-2">Ops! Nada por aqui.</h1>
             <p className="text-slate-400 max-w-xs mb-8">
-                Não encontramos nenhuma barbearia com o link <code className="text-slate-200">/{slug}</code>.
+                Não encontramos nenhum estabelecimento com o link <code className="text-slate-200">/{slug}</code>.
             </p>
             <button
                 onClick={() => window.location.href = '/'}
@@ -69,6 +72,8 @@ function ShopPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [shopInfo, setShopInfo] = useState<any>(null);
+    const texts = getBusinessTexts(shopInfo?.business_type);
+    const theme = getBusinessTheme(shopInfo?.business_type);
 
     // App States
     const [currentFlow, setCurrentFlow] = useState<'main' | 'registration' | 'queue' | 'appointment' | 'success' | 'my-appointments'>('main');
@@ -154,9 +159,19 @@ function ShopPage() {
 
     return (
         <main className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full relative overflow-hidden min-h-screen">
+            {/* INJEÇÃO DE CORES DINÂMICAS */}
+            <style>{`
+                :root {
+                    --primary: ${theme.primaryHex};
+                    --primary-gradient: ${theme.gradient};
+                }
+                .bg-primary-custom { background-color: ${theme.primaryHex}; }
+                .text-primary-custom { color: ${theme.primaryHex}; }
+                .border-primary-custom { border-color: ${theme.primaryHex}; }
+            `}</style>
 
             {/* BACKGROUND DECOR */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-64 bg-blue-600/5 blur-[120px] rounded-full -z-10" />
+            <div className={cn("absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-64 blur-[120px] rounded-full -z-10 bg-primary-custom/5")} />
 
             {/* CONTEÚDO CENTRALIZADO (HEADER + FLUXOS) */}
             <div className="flex-1 flex flex-col justify-start pt-6 w-full max-w-md mx-auto z-10">
@@ -167,7 +182,7 @@ function ShopPage() {
                         <img src={shopInfo?.logo_url || '/icon-192.png'} alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-4xl font-black tracking-tighter uppercase leading-none mb-3">{shopInfo?.name}</h1>
-                    <p className="text-blue-500 font-bold text-xs tracking-[0.5em] uppercase">Experience Excellence</p>
+                    <p className="text-primary-custom font-bold text-xs tracking-[0.5em] uppercase">Experience Excellence</p>
                 </div>
 
                 {currentFlow === 'registration' && (
@@ -197,15 +212,15 @@ function ShopPage() {
                         {shopInfo?.module_queue_enabled && (
                             <button
                                 onClick={() => setCurrentFlow('queue')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-blue-500/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-primary-custom/50"
                             >
                                 <div className="flex flex-col items-center justify-center relative z-10 text-center gap-2">
-                                    <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 mb-1 group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 bg-primary-custom/10 rounded-xl flex items-center justify-center text-primary-custom mb-1 group-hover:scale-110 transition-transform">
                                         <Scissors size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black uppercase group-hover:text-blue-400 transition-colors">Fila Digital</h3>
-                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">Entre na fila agora mesmo.</p>
+                                        <h3 className="text-xl font-black uppercase group-hover:text-primary-custom transition-colors">{texts.enterQueue}</h3>
+                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">{texts.queueDescription}</p>
                                     </div>
                                 </div>
                             </button>
@@ -214,15 +229,15 @@ function ShopPage() {
                         {shopInfo?.module_appointments_enabled && (
                             <button
                                 onClick={() => setCurrentFlow('appointment')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-emerald-500/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-5 rounded-2xl w-full transition-all active:scale-[0.98] hover:border-primary-custom/50"
                             >
                                 <div className="flex flex-col items-center justify-center relative z-10 text-center gap-2">
-                                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-1 group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 bg-primary-custom/10 rounded-xl flex items-center justify-center text-primary-custom mb-1 group-hover:scale-110 transition-transform">
                                         <Clock size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black uppercase group-hover:text-emerald-400 transition-colors">Agendamento</h3>
-                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">Reserve seu horário favorito.</p>
+                                        <h3 className="text-xl font-black uppercase group-hover:text-primary-custom transition-colors">{texts.makeAppointment}</h3>
+                                        <p className="text-xs text-yellow-500 font-bold mt-0.5">{texts.appointmentDescription}</p>
                                     </div>
                                 </div>
                             </button>
@@ -252,6 +267,7 @@ function ShopPage() {
                         slug={slug!}
                         clientData={clientData}
                         hasPendingAppointments={hasPendingAppointments}
+                        business_type={shopInfo?.business_type}
                         onCancel={() => setCurrentFlow('main')}
                         onComplete={() => setCurrentFlow('success')}
                         onViewAppointments={() => setCurrentFlow('my-appointments')}
@@ -283,7 +299,7 @@ function ShopPage() {
                             <CheckCircle2 className="text-white w-10 h-10" />
                         </div>
                         <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Sucesso!</h2>
-                        <p className="text-slate-400 font-medium mb-12">Seu horário foi reservado. Você receberá uma confirmação em breve.</p>
+                        <p className="text-slate-400 font-medium mb-12">Seu agendamento foi realizado. Você receberá uma confirmação em breve.</p>
 
                         <div className="flex flex-col gap-3 w-full">
                             <button
@@ -294,7 +310,7 @@ function ShopPage() {
                             </button>
                             <button
                                 onClick={() => setCurrentFlow('main')}
-                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl text-white font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-900/20"
+                                className="w-full py-4 bg-primary-custom hover:opacity-90 rounded-2xl text-white font-black uppercase tracking-widest transition-all shadow-lg"
                             >
                                 Voltar ao Início
                             </button>
@@ -317,7 +333,7 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/:slug" element={<ShopPage />} />
-                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Selecione uma barbearia para continuar</div>} />
+                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Aguarde um momento...</div>} />
             </Routes>
         </BrowserRouter>
     );
