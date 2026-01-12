@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import { Api } from './lib/api';
-import { User, ChevronRight, Scissors, Clock, CheckCircle2 } from 'lucide-react';
+import { User, ChevronRight, Scissors, Clock, CheckCircle2, Calendar } from 'lucide-react';
 import { AppointmentWizard } from './components/AppointmentWizard';
 import { QueueWizard } from './components/QueueWizard';
 import { RegistrationForm } from './components/RegistrationForm';
@@ -124,6 +124,31 @@ function ShopPage() {
         }
     }
 
+    // CHECK FOR PENDING APPOINTMENTS
+    const [hasPendingAppointments, setHasPendingAppointments] = useState(false);
+
+    useEffect(() => {
+        if (!clientData || !slug || !shopInfo?.module_appointments_enabled) return;
+
+        checkPendingAppointments();
+    }, [clientData, slug, shopInfo]);
+
+    async function checkPendingAppointments() {
+        try {
+            const data = await Api.getMyAppointments(clientData.phone, slug!);
+            if (data && data.length > 0) {
+                // Filtra apenas status 'scheduled' ou validos, embora a API ja traga so futuros
+                // Mas garantimos que tem pelo menos um nao-finalizado se a API trouxer historico
+                const pending = data.filter((a: any) => a.status === 'scheduled' || a.status === 'in_service');
+                setHasPendingAppointments(pending.length > 0);
+            } else {
+                setHasPendingAppointments(false);
+            }
+        } catch (error) {
+            console.error("Failed to check appointments", error);
+        }
+    }
+
     if (loading) return <LoadingScreen />;
     if (error) return <ErrorScreen slug={slug || ''} />;
 
@@ -134,34 +159,36 @@ function ShopPage() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-64 bg-blue-600/5 blur-[120px] rounded-full -z-10" />
 
             {/* CONTEÚDO CENTRALIZADO (HEADER + FLUXOS) */}
-            <div className="flex-1 flex flex-col justify-center w-full max-w-md mx-auto z-10">
+            <div className="flex-1 flex flex-col justify-start pt-6 w-full max-w-md mx-auto z-10">
 
                 {/* HEADER */}
-                <div className="flex flex-col items-center text-center mb-8">
-                    <div className="w-32 h-32 bg-slate-900 rounded-3xl border border-slate-800 p-4 shadow-2xl mb-6">
+                <div className="flex flex-col items-center text-center shrink-0 mb-4">
+                    <div className="w-40 h-40 bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-2xl mb-6">
                         <img src={shopInfo?.logo_url || '/icon-192.png'} alt="Logo" className="w-full h-full object-contain" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{shopInfo?.name}</h1>
-                    <p className="text-blue-500 font-bold text-[10px] tracking-[0.4em] uppercase">Experience Excellence</p>
+                    <h1 className="text-4xl font-black tracking-tighter uppercase leading-none mb-3">{shopInfo?.name}</h1>
+                    <p className="text-blue-500 font-bold text-xs tracking-[0.5em] uppercase">Experience Excellence</p>
                 </div>
 
                 {currentFlow === 'registration' && (
-                    <RegistrationForm
-                        slug={slug!}
-                        clientId={clientId || undefined}
-                        initialData={clientData}
-                        onComplete={(data) => {
-                            setClientData(data);
-                            // Decide após registro
-                            if (shopInfo.module_queue_enabled && !shopInfo.module_appointments_enabled) setCurrentFlow('queue');
-                            else if (shopInfo.module_appointments_enabled && !shopInfo.module_queue_enabled) setCurrentFlow('appointment');
-                            else setCurrentFlow('main');
-                        }}
-                    />
+                    <div className="flex-1 flex flex-col justify-center">
+                        <RegistrationForm
+                            slug={slug!}
+                            clientId={clientId || undefined}
+                            initialData={clientData}
+                            onComplete={(data) => {
+                                setClientData(data);
+                                // Decide após registro
+                                if (shopInfo.module_queue_enabled && !shopInfo.module_appointments_enabled) setCurrentFlow('queue');
+                                else if (shopInfo.module_appointments_enabled && !shopInfo.module_queue_enabled) setCurrentFlow('appointment');
+                                else setCurrentFlow('main');
+                            }}
+                        />
+                    </div>
                 )}
 
                 {currentFlow === 'main' && (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex-1 flex flex-col justify-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
                         <div className="text-center mb-8">
                             <p className="text-slate-400 font-medium text-lg leading-relaxed">Bem-vindo de volta, <br /><span className="text-white font-black text-2xl">{clientData?.name?.split(' ')[0]}</span>!</p>
                             <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-3">O que deseja fazer hoje?</p>
@@ -170,19 +197,16 @@ function ShopPage() {
                         {shopInfo?.module_queue_enabled && (
                             <button
                                 onClick={() => setCurrentFlow('queue')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-6 rounded-3xl text-left transition-all active:scale-[0.98] hover:border-blue-500/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full transition-all active:scale-[0.98] hover:border-blue-500/50"
                             >
-                                <div className="flex items-center justify-between relative z-10">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
-                                            <Scissors size={24} />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-black uppercase group-hover:text-blue-400 transition-colors">Fila Digital</h3>
-                                            <p className="text-xs text-slate-500 font-medium">Entre na fila agora mesmo.</p>
-                                        </div>
+                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-3">
+                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-2 group-hover:scale-110 transition-transform">
+                                        <Scissors size={32} />
                                     </div>
-                                    <ChevronRight className="text-slate-800 group-hover:text-blue-500 transition-colors" />
+                                    <div>
+                                        <h3 className="text-2xl font-black uppercase group-hover:text-blue-400 transition-colors">Fila Digital</h3>
+                                        <p className="text-sm text-yellow-500 font-bold mt-1">Entre na fila agora mesmo.</p>
+                                    </div>
                                 </div>
                             </button>
                         )}
@@ -190,19 +214,33 @@ function ShopPage() {
                         {shopInfo?.module_appointments_enabled && (
                             <button
                                 onClick={() => setCurrentFlow('appointment')}
-                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-6 rounded-3xl text-left transition-all active:scale-[0.98] hover:border-emerald-500/50"
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full transition-all active:scale-[0.98] hover:border-emerald-500/50"
                             >
-                                <div className="flex items-center justify-between relative z-10">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
-                                            <Clock size={24} />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-black uppercase group-hover:text-emerald-400 transition-colors">Agendamento</h3>
-                                            <p className="text-xs text-slate-500 font-medium">Reserve seu horário favorito.</p>
-                                        </div>
+                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-3">
+                                    <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-2 group-hover:scale-110 transition-transform">
+                                        <Clock size={32} />
                                     </div>
-                                    <ChevronRight className="text-slate-800 group-hover:text-emerald-500 transition-colors" />
+                                    <div>
+                                        <h3 className="text-2xl font-black uppercase group-hover:text-emerald-400 transition-colors">Agendamento</h3>
+                                        <p className="text-sm text-yellow-500 font-bold mt-1">Reserve seu horário favorito.</p>
+                                    </div>
+                                </div>
+                            </button>
+                        )}
+
+                        {shopInfo?.module_appointments_enabled && clientData && hasPendingAppointments && (
+                            <button
+                                onClick={() => setCurrentFlow('my-appointments')}
+                                className="group relative overflow-hidden bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full transition-all active:scale-[0.98] hover:border-slate-600/50"
+                            >
+                                <div className="flex flex-col items-center justify-center relative z-10 text-center gap-3">
+                                    <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 mb-2 group-hover:scale-110 transition-transform">
+                                        <Calendar size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black uppercase group-hover:text-slate-300 transition-colors">Meus Agendamentos</h3>
+                                        <p className="text-sm text-yellow-500 font-bold mt-1">Visualize seus horários marcados.</p>
+                                    </div>
                                 </div>
                             </button>
                         )}
@@ -213,8 +251,10 @@ function ShopPage() {
                     <AppointmentWizard
                         slug={slug!}
                         clientData={clientData}
+                        hasPendingAppointments={hasPendingAppointments}
                         onCancel={() => setCurrentFlow('main')}
                         onComplete={() => setCurrentFlow('success')}
+                        onViewAppointments={() => setCurrentFlow('my-appointments')}
                     />
                 )}
 

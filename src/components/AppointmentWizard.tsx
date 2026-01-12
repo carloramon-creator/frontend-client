@@ -21,11 +21,13 @@ interface AppointmentWizardProps {
         cpf?: string;
         photo_url?: string;
     };
+    hasPendingAppointments?: boolean;
     onComplete: () => void;
     onCancel: () => void;
+    onViewAppointments?: () => void;
 }
 
-export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: AppointmentWizardProps) {
+export function AppointmentWizard({ slug, clientData, hasPendingAppointments, onComplete, onCancel, onViewAppointments }: AppointmentWizardProps) {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -150,6 +152,16 @@ export function AppointmentWizard({ slug, clientData, onComplete, onCancel }: Ap
                             <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${step === i ? "bg-blue-500 w-6" : step > i ? "bg-blue-900" : "bg-slate-800"}`} />
                         ))}
                     </div>
+                )}
+
+                {step === 1 && hasPendingAppointments && onViewAppointments && (
+                    <button
+                        onClick={onViewAppointments}
+                        className="mt-4 px-4 py-2 bg-slate-800 rounded-full text-[10px] font-bold uppercase tracking-widest text-yellow-500 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center justify-center gap-2 mx-auto"
+                    >
+                        <CalendarCheck size={14} />
+                        Ver Meus Agendamentos
+                    </button>
                 )}
             </div>
 
