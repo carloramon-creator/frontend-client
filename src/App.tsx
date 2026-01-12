@@ -5,6 +5,7 @@ import { User, ChevronRight, Scissors, Clock, CheckCircle2 } from 'lucide-react'
 import { AppointmentWizard } from './components/AppointmentWizard';
 import { QueueWizard } from './components/QueueWizard';
 import { RegistrationForm } from './components/RegistrationForm';
+import { MyAppointments } from './components/MyAppointments';
 
 // --- COMPONENTES AUXILIARES ---
 
@@ -70,7 +71,7 @@ function ShopPage() {
     const [shopInfo, setShopInfo] = useState<any>(null);
 
     // App States
-    const [currentFlow, setCurrentFlow] = useState<'main' | 'registration' | 'queue' | 'appointment' | 'success'>('main');
+    const [currentFlow, setCurrentFlow] = useState<'main' | 'registration' | 'queue' | 'appointment' | 'success' | 'my-appointments'>('main');
     const [clientData, setClientData] = useState<any>(null);
 
     const clientId = searchParams.get('c');
@@ -227,6 +228,15 @@ function ShopPage() {
                     />
                 )}
 
+                {/* MEUS AGENDAMENTOS */}
+                {currentFlow === 'my-appointments' && clientData && (
+                    <MyAppointments
+                        slug={slug!}
+                        clientData={clientData}
+                        onBack={() => setCurrentFlow('main')}
+                    />
+                )}
+
                 {currentFlow === 'success' && (
                     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in-95 duration-500">
                         <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/20">
@@ -234,12 +244,21 @@ function ShopPage() {
                         </div>
                         <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Sucesso!</h2>
                         <p className="text-slate-400 font-medium mb-12">Seu horário foi reservado. Você receberá uma confirmação em breve.</p>
-                        <button
-                            onClick={() => setCurrentFlow('main')}
-                            className="px-12 py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-black uppercase tracking-widest transition-all"
-                        >
-                            Voltar
-                        </button>
+
+                        <div className="flex flex-col gap-3 w-full">
+                            <button
+                                onClick={() => setCurrentFlow('my-appointments')}
+                                className="w-full py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-black uppercase tracking-widest transition-all border border-slate-700"
+                            >
+                                Meus Agendamentos
+                            </button>
+                            <button
+                                onClick={() => setCurrentFlow('main')}
+                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl text-white font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-900/20"
+                            >
+                                Voltar ao Início
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

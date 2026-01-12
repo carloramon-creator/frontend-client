@@ -60,5 +60,13 @@ export const Api = {
     createAppointment: async (data: any) => {
         const res = await api.post('/api/public/appointments', data);
         return res.data;
+    },
+
+    /** AGENDAMENTOS: Busca agendamentos do cliente (PÚBLICO) */
+    getMyAppointments: async (phone: string, slug: string) => {
+        const res = await api.get(`/api/public/appointments`, {
+            params: { phone, slug }
+        });
+        return res.data;
     }
 };
