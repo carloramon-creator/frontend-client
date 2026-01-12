@@ -167,12 +167,16 @@ function ShopPage() {
                     --main-bg: ${theme.mainBg};
                     --card-bg: ${theme.cardBg};
                     --card-border: ${theme.cardBorder};
+                    --text-primary: ${theme.textPrimary};
+                    --text-secondary: ${theme.textSecondary};
                     --text-branding: ${theme.textBranding};
                 }
-                body { background-color: ${theme.mainBg} !important; transition: background-color 0.5s ease; }
+                body { background-color: ${theme.mainBg} !important; color: ${theme.textPrimary} !important; transition: background-color 0.5s ease; }
                 .bg-slate-900 { background-color: var(--card-bg) !important; }
                 .bg-slate-950 { background-color: var(--main-bg) !important; }
                 .border-slate-800 { border-color: var(--card-border) !important; }
+                .text-slate-50, .text-slate-100, .text-white { color: var(--text-primary) !important; }
+                .text-slate-400, .text-slate-500 { color: var(--text-secondary) !important; }
                 .bg-primary-custom { background-color: ${theme.primaryHex}; }
                 .text-primary-custom { color: ${theme.primaryHex}; }
                 .border-primary-custom { border-color: ${theme.primaryHex}; }
