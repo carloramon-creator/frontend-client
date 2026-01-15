@@ -58,20 +58,23 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
         }
     }
 
+
+    // Polling for ticket status updates - MUST be at top level (React Hooks Rule)
+    useEffect(() => {
+        if (step !== 'ticket' || !ticket?.id) return;
+
+        const poll = setInterval(async () => {
+            try {
+                const update = await Api.getTicketStatus(ticket.id);
+                if (update) setTicket((prev: any) => ({ ...prev, ...update }));
+            } catch (e) {
+                console.error("Erro ao atualizar ticket", e);
+            }
+        }, 5000);
+        return () => clearInterval(poll);
+    }, [step, ticket?.id]);
+
     if (step === 'ticket') {
-        useEffect(() => {
-            if (!ticket?.id) return;
-            // Efeito sonoro e vibração se necessário podem ser adicionados aqui quando status mudar
-            const poll = setInterval(async () => {
-                try {
-                    const update = await Api.getTicketStatus(ticket.id);
-                    if (update) setTicket((prev: any) => ({ ...prev, ...update }));
-                } catch (e) {
-                    console.error("Erro ao atualizar ticket", e);
-                }
-            }, 5000);
-            return () => clearInterval(poll);
-        }, [ticket?.id]);
 
         // Tela de "CHEGOU SUA VEZ"
         if (ticket?.status === 'attending') {
