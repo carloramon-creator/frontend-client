@@ -3,8 +3,9 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
 
 // DADOS EXTRAÍDOS DIRETAMENTE DO PRINT DO CONSOLE FIREBASE DO USUÁRIO
+// CORREÇÃO: A chave correta contém 'm' em 'XmAj2AZA', não 'n'.
 const firebaseConfig = {
-    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXnAj2AZA",
+    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXmAj2AZA",
     authDomain: "barber-ec79b.firebaseapp.com",
     projectId: "barber-ec79b",
     storageBucket: "barber-ec79b.firebasestorage.app",

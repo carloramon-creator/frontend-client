@@ -1,9 +1,10 @@
-// Firebase Cloud Messaging Service Worker v2.2
+// Firebase Cloud Messaging Service Worker v2.3
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
+// CORREÇÃO: A chave correta contém 'm' em 'XmAj2AZA', não 'n'.
 const firebaseConfig = {
-    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXnAj2AZA",
+    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXmAj2AZA",
     authDomain: "barber-ec79b.firebaseapp.com",
     projectId: "barber-ec79b",
     storageBucket: "barber-ec79b.firebasestorage.app",
