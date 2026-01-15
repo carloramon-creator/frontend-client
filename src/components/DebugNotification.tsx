@@ -7,6 +7,9 @@ export function DebugNotification() {
     const [log, setLog] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
 
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
     const addLog = (msg: string) => setLog(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
 
     const handleGetToken = async () => {
@@ -80,6 +83,13 @@ export function DebugNotification() {
             <h1 className="text-2xl font-bold mb-6 text-emerald-500 flex items-center gap-2">
                 <Bell /> Debug Notificações
             </h1>
+
+            {isIOS && !isPWA && (
+                <div className="w-full max-w-md bg-yellow-500/10 border border-yellow-500/50 p-4 rounded-xl mb-4 text-sm text-yellow-200">
+                    <p className="font-bold mb-1">⚠️ Notificações no iPhone:</p>
+                    <p>Você está no Safari. No iPhone, notificações <strong>só funcionam</strong> se você clicar em "Compartilhar" e depois em "Adicionar à Tela de Início".</p>
+                </div>
+            )}
 
             <div className="w-full max-w-md space-y-4">
                 <div className="grid grid-cols-2 gap-2">

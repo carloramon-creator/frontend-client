@@ -335,7 +335,8 @@ export default function App() {
             <Routes>
                 <Route path="/debug-push" element={<DebugNotification />} />
                 <Route path="/:slug" element={<ShopPage />} />
-                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Aguarde um momento...</div>} />
+                <Route path="/" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">791 Barber <br /><span className="text-[10px] opacity-50 font-normal">Selecione um estabelecimento pelo link oficial.</span></div>} />
+                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Ops! Caminho não encontrado.</div>} />
             </Routes>
         </BrowserRouter>
     );
