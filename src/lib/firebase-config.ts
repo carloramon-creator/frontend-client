@@ -21,8 +21,15 @@ export const requestNotificationPermission = async () => {
     try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
-            // No iOS/Safari, é mais seguro passar o serviceWorkerRegistration explicitamente
-            const registration = await navigator.serviceWorker.ready;
+            const regs = await navigator.serviceWorker.getRegistrations();
+            // Busca o registro específico do nosso arquivo de mensagens
+            let registration = regs.find(r => r.active && r.active.scriptURL.includes('firebase-messaging-sw.js'));
+
+            if (!registration) {
+                console.log('SW específico não achado, aguardando ready...');
+                registration = await navigator.serviceWorker.ready;
+            }
+
             const token = await getToken(messaging, {
                 vapidKey: VAPID_KEY,
                 serviceWorkerRegistration: registration
