@@ -3,7 +3,7 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 // PREENCHA COM SEUS DADOS DO CONSOLE FIREBASE
 const firebaseConfig = {
-    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXnAjZAZA",
+    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXnAj2AZA",
     authDomain: "barber-ec79b.firebaseapp.com",
     projectId: "barber-ec79b",
     storageBucket: "barber-ec79b.firebasestorage.app",
