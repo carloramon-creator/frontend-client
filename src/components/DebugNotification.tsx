@@ -51,6 +51,26 @@ export function DebugNotification() {
         }
     };
 
+    const checkSW = async () => {
+        addLog('Verificando Service Worker...');
+        if (!('serviceWorker' in navigator)) {
+            addLog('ERRO: Navegador não suporta Service Worker!');
+            return;
+        }
+        const regs = await navigator.serviceWorker.getRegistrations();
+        if (regs.length === 0) {
+            addLog('AVISO: Nenhum SW registrado. Tentando registrar agora...');
+            try {
+                const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                addLog('SW registrado: ' + reg.scope);
+            } catch (e: any) {
+                addLog('Falha ao registrar SW: ' + e.message);
+            }
+        } else {
+            regs.forEach(r => addLog(`SW Ativo: ${r.scope} (${r.active ? 'Ativo' : 'Inativo'})`));
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-950 text-white p-6 flex flex-col items-center">
             <h1 className="text-2xl font-bold mb-6 text-emerald-500 flex items-center gap-2">
@@ -58,6 +78,13 @@ export function DebugNotification() {
             </h1>
 
             <div className="w-full max-w-md space-y-4">
+                <button
+                    onClick={checkSW}
+                    className="w-full py-2 bg-slate-800 rounded-xl font-bold text-xs"
+                >
+                    0. Verificar Service Worker
+                </button>
+
                 <button
                     onClick={handleGetToken}
                     className="w-full py-4 bg-blue-600 rounded-xl font-bold flex items-center justify-center gap-2"
