@@ -330,11 +330,19 @@ function ShopPage() {
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/:slug" element={<ShopPage />} />
-                <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Aguarde um momento...</div>} />
-            </Routes>
-        </BrowserRouter>
+import { DebugNotification } from './components/DebugNotification';
+
+    // ... (existing App component)
+    export default function App() {
+        return (
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/debug-push" element={<DebugNotification />} />
+                    <Route path="/:slug" element={<ShopPage />} />
+                    <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Aguarde um momento...</div>} />
+                </Routes>
+            </BrowserRouter>
+        );
+    }
     );
 }
