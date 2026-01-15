@@ -19,12 +19,11 @@ export function DebugNotification() {
                 addLog('Token gerado com sucesso!');
                 console.log('Token:', t);
             } else {
-                addLog('Permissão foi dada, mas falhou ao obter o Token (getToken retornou null).');
+                addLog('Permissão dada, mas falhou ao obter Token (null).');
             }
         } catch (e: any) {
             console.error(e);
             addLog('Erro Detalhado: ' + (e.message || JSON.stringify(e)));
-            if (e.stack) console.log(e.stack);
         } finally {
             setLoading(false);
         }
@@ -35,7 +34,6 @@ export function DebugNotification() {
         setLoading(true);
         addLog('Enviando requisição ao Backend...');
         try {
-            // Tenta detectar a URL base da API
             const baseUrl = import.meta.env.VITE_API_URL || 'https://api.791barber.com';
             const res = await fetch(`${baseUrl}/api/debug/firebase`, {
                 method: 'POST',
@@ -62,66 +60,66 @@ export function DebugNotification() {
     };
 
     const checkSW = async () => {
-        // ... existing checkSW ...
-        // (I will replace the whole return block to add the button)
-        return (
-            <div className="min-h-screen bg-slate-950 text-white p-6 flex flex-col items-center">
-                <h1 className="text-2xl font-bold mb-6 text-emerald-500 flex items-center gap-2">
-                    <Bell /> Debug Notificações
-                </h1>
+        addLog('Verificando Service Worker...');
+        if (!('serviceWorker' in navigator)) {
+            addLog('ERRO: Não suportado!');
+            return;
+        }
+        const regs = await navigator.serviceWorker.getRegistrations();
+        if (regs.length === 0) {
+            addLog('Nenhum SW. Re-registrando...');
+            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js?v=2');
+            addLog('Registrado: ' + reg.scope);
+        } else {
+            regs.forEach(r => addLog(`Ativo: ${r.scope}`));
+        }
+    };
 
-                <div className="w-full max-w-md space-y-4">
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            onClick={checkSW}
-                            className="py-2 bg-slate-800 rounded-xl font-bold text-[10px]"
-                        >
-                            0. Verificar SW
-                        </button>
-                        <button
-                            onClick={unregisterSW}
-                            className="py-2 bg-red-900/30 text-red-400 rounded-xl font-bold text-[10px]"
-                        >
-                            Resetar Sistema
-                        </button>
-                    </div>
+    return (
+        <div className="min-h-screen bg-slate-950 text-white p-6 flex flex-col items-center">
+            <h1 className="text-2xl font-bold mb-6 text-emerald-500 flex items-center gap-2">
+                <Bell /> Debug Notificações
+            </h1>
 
-                    <button
-                        onClick={handleGetToken}
-                        className="w-full py-4 bg-blue-600 rounded-xl font-bold flex items-center justify-center gap-2"
-                    >
-                        1. Gerar Token FCM
-                    </button>
+            <div className="w-full max-w-md space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                    <button onClick={checkSW} className="py-2 bg-slate-800 rounded-xl font-bold text-[10px]">0. Verificar SW</button>
+                    <button onClick={unregisterSW} className="py-2 bg-red-900/30 text-red-400 rounded-xl font-bold text-[10px]">Resetar Sistema</button>
+                </div>
 
-                    {token && (
-                        <div className="bg-slate-900 p-4 rounded-xl break-all text-xs font-mono border border-slate-800">
-                            {token}
-                            <div className="flex gap-2 mt-2">
-                                <button
-                                    onClick={() => navigator.clipboard.writeText(token)}
-                                    className="flex-1 py-2 bg-slate-800 rounded flex items-center justify-center gap-2 hover:bg-slate-700"
-                                >
-                                    <Copy size={14} /> Copiar
-                                </button>
-                            </div>
+                <button
+                    onClick={handleGetToken}
+                    className="w-full py-4 bg-blue-600 rounded-xl font-bold flex items-center justify-center gap-2"
+                >
+                    1. Gerar Token FCM
+                </button>
+
+                {token && (
+                    <div className="bg-slate-900 p-4 rounded-xl break-all text-xs font-mono border border-slate-800">
+                        {token}
+                        <div className="flex gap-2 mt-2">
+                            <button onClick={() => navigator.clipboard.writeText(token)} className="flex-1 py-2 bg-slate-800 rounded flex items-center justify-center gap-2">
+                                <Copy size={14} /> Copiar
+                            </button>
                         </div>
-                    )}
-
-                    <button
-                        onClick={handleTestBackend}
-                        disabled={!token || loading}
-                        className="w-full py-4 bg-emerald-600 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                        <Send size={18} /> 2. Testar Envio (Backend)
-                    </button>
-
-                    <div className="mt-8 bg-black/50 p-4 rounded-xl min-h-[200px] text-xs font-mono overflow-y-auto border border-slate-800">
-                        <div className="text-slate-500 mb-2 border-b border-slate-800 pb-2">Logs do Sistema:</div>
-                        {log.map((l, i) => (
-                            <div key={i} className="mb-1">{l}</div>
-                        ))}
                     </div>
+                )}
+
+                <button
+                    onClick={handleTestBackend}
+                    disabled={!token || loading}
+                    className="w-full py-4 bg-emerald-600 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                    <Send size={18} /> 2. Testar Envio (Backend)
+                </button>
+
+                <div className="mt-8 bg-black/50 p-4 rounded-xl min-h-[200px] text-xs font-mono overflow-y-auto border border-slate-800">
+                    <div className="text-slate-500 mb-2 border-b border-slate-800 pb-2">Logs:</div>
+                    {log.map((l, i) => (
+                        <div key={i} className="mb-1">{l}</div>
+                    ))}
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
