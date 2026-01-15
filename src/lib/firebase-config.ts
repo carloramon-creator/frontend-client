@@ -1,18 +1,25 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getAnalytics } from 'firebase/analytics';
 
-// PREENCHA COM SEUS DADOS DO CONSOLE FIREBASE
+// DADOS EXTRAÍDOS DIRETAMENTE DO PRINT DO CONSOLE FIREBASE DO USUÁRIO
 const firebaseConfig = {
     apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXnAj2AZA",
     authDomain: "barber-ec79b.firebaseapp.com",
     projectId: "barber-ec79b",
     storageBucket: "barber-ec79b.firebasestorage.app",
     messagingSenderId: "856918849752",
-    appId: "1:856918849752:web:1a1728d277723998df7fad"
+    appId: "1:856918849752:web:1a1728d277723998df7fad",
+    measurementId: "G-K8LRV3P776"
 };
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
+
+// Só inicializa Analytics se estiver no navegador
+if (typeof window !== 'undefined') {
+    getAnalytics(app);
+}
 
 // Chave pública VAPID (Gerada em Project Settings > Cloud Messaging > Web Push certificates)
 const VAPID_KEY = "BJBbVyUmYAsvG7bce5w95onOxpPiWV2uQkPkhH1qhXYbbVBM2swkiC5DNhuKqGJyireNUZARrL1TsugWeJgrB1g";

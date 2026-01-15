@@ -60,8 +60,22 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
             });
             setTicket(result);
             setStep('ticket');
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao entrar na fila:", error);
+
+            // Se o servidor avisar que já está na fila, pegamos o ID e levamos o usuário para o ticket
+            if (error.response?.data?.error === 'CLIENT_ALREADY_IN_QUEUE' && error.response?.data?.ticketId) {
+                const existingTicketId = error.response.data.ticketId;
+                try {
+                    const update = await Api.getTicketStatus(existingTicketId);
+                    setTicket(update);
+                    setStep('ticket');
+                    return; // Sai sem mostrar o alerta de erro
+                } catch (e) {
+                    console.error("Falha ao recuperar ticket existente", e);
+                }
+            }
+
             alert('Erro ao entrar na fila. Tente novamente.');
         } finally {
             setLoading(false);
