@@ -22,7 +22,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Chave pública VAPID (Gerada em Project Settings > Cloud Messaging > Web Push certificates)
-const VAPID_KEY = "BJBbVyUmYAsvG7bce5w95onOxpPiWV2uQkPkhH1qhXYbbVBM2swkiC5DNhuKqGJyireNUZARrL1TsugWeJgrB1g";
+const VAPID_KEY = "zfv69ZTwNmYVEU_h7Q3Ta0VQ2gH4jIZPhU1bJ_Icb6k";
 
 export const requestNotificationPermission = async () => {
     try {
