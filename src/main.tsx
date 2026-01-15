@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')!).render(
 // Registrar Service Worker para Notificações
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    navigator.serviceWorker.register('/firebase-messaging-sw.js?v=2')
       .then(reg => console.log('SW registrado:', reg.scope))
       .catch(err => console.log('Erro ao registrar SW:', err));
   });
