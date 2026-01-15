@@ -19,10 +19,12 @@ export function DebugNotification() {
                 addLog('Token gerado com sucesso!');
                 console.log('Token:', t);
             } else {
-                addLog('Permissão negada ou falha ao gerar token.');
+                addLog('Permissão foi dada, mas falhou ao obter o Token (getToken retornou null).');
             }
         } catch (e: any) {
-            addLog('Erro: ' + e.message);
+            console.error(e);
+            addLog('Erro Detalhado: ' + (e.message || JSON.stringify(e)));
+            if (e.stack) console.log(e.stack);
         } finally {
             setLoading(false);
         }
