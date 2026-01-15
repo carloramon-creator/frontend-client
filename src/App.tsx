@@ -299,7 +299,7 @@ function ShopPage() {
                             <CheckCircle2 className="text-white w-10 h-10" />
                         </div>
                         <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Sucesso!</h2>
-                        <p className="text-slate-400 font-medium mb-12">Seu agendamento foi realizado. Você receberá uma confirmação em breve.</p>
+                        <p className="text-slate-400 font-medium mb-12">Tudo certo! Você receberá uma notificação quando chamarmos.</p>
 
                         <div className="flex flex-col gap-3 w-full">
                             <button

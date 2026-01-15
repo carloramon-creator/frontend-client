@@ -68,5 +68,11 @@ export const Api = {
             params: { phone, slug }
         });
         return res.data;
+    },
+
+    /** BUSCA STATUS DO TICKET (PÚBLICO) */
+    getTicketStatus: async (ticketId: string) => {
+        const res = await api.get(`/api/public/queue/ticket?id=${ticketId}`);
+        return res.data;
     }
 };
