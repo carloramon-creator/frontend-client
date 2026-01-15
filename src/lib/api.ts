@@ -74,5 +74,11 @@ export const Api = {
     getTicketStatus: async (ticketId: string) => {
         const res = await api.get(`/api/public/queue/ticket?id=${ticketId}`);
         return res.data;
+    },
+
+    /** CANCELAR/SAIR DA FILA (PÚBLICO) */
+    cancelQueue: async (ticketId: string) => {
+        const res = await api.delete(`/api/public/queue/${ticketId}`);
+        return res.data;
     }
 };

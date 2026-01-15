@@ -99,6 +99,28 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
             );
         }
 
+        // Tela de "ATENDIMENTO CONCLUÍDO" (Obrigado)
+        if (ticket?.status === 'completed' || ticket?.status === 'finished') {
+            return (
+                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in-95 duration-500">
+                    <div className="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(59,130,246,0.5)]">
+                        <CheckCircle2 className="text-white w-16 h-16" />
+                    </div>
+                    <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 text-white">Atendimento Concluído!</h2>
+                    <p className="text-slate-300 font-medium text-lg leading-relaxed max-w-xs mx-auto mb-12">
+                        Obrigado por utilizar nossos serviços. Esperamos vê-lo novamente em breve!
+                    </p>
+
+                    <button
+                        onClick={onComplete}
+                        className="w-full h-16 bg-primary-custom hover:opacity-90 rounded-2xl font-black uppercase tracking-widest transition-all text-white"
+                    >
+                        Voltar ao Início
+                    </button>
+                </div>
+            );
+        }
+
         // Tela de Aguardando na Fila
         return (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in-95 duration-500">
@@ -149,6 +171,21 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                         className="w-full py-4 rounded-xl text-slate-500 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors"
                     >
                         Sair da Tela (Manter lugar)
+                    </button>
+                    <button
+                        onClick={async () => {
+                            if (confirm('Tem certeza que deseja sair da fila? Você perderá sua posição.')) {
+                                try {
+                                    await Api.cancelQueue(ticket.id);
+                                    onComplete();
+                                } catch (e) {
+                                    alert('Erro ao sair da fila. Tente novamente.');
+                                }
+                            }
+                        }}
+                        className="w-full py-4 rounded-xl bg-red-500/10 text-red-500 font-bold uppercase text-xs tracking-widest hover:bg-red-500/20 transition-colors border border-red-500/20"
+                    >
+                        Desistir / Sair da Fila
                     </button>
                 </div>
             </div>
