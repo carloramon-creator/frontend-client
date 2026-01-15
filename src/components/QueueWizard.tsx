@@ -40,8 +40,14 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
         if (!clientData) return;
         setLoading(true);
         try {
-            // Tenta obter permissão de notificação antes de entrar
-            const fcmToken = await requestNotificationPermission();
+            // Tenta obter permissão de notificação antes de entrar, mas NÃO trava se falhar
+            let fcmToken = null;
+            try {
+                fcmToken = await requestNotificationPermission();
+            } catch (notiError) {
+                console.error("Erro (não-crítico) ao obter permissão de notificação:", notiError);
+                // Prossegue sem token fcm
+            }
 
             const result = await Api.enterQueue({
                 tenant_id: shopInfo.id,
@@ -55,6 +61,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
             setTicket(result);
             setStep('ticket');
         } catch (error) {
+            console.error("Erro ao entrar na fila:", error);
             alert('Erro ao entrar na fila. Tente novamente.');
         } finally {
             setLoading(false);
