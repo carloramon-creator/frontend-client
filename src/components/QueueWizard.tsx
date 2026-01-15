@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Api } from '../lib/api';
 import { User, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
 import { getBusinessTexts } from '../lib/business-dictionary';
+import { requestNotificationPermission } from '../lib/firebase-config';
 
 interface QueueWizardProps {
     slug: string;
@@ -27,7 +28,6 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
         try {
             setLoading(true);
             const data = await Api.getBarbers(slug);
-            // Filtra apenas barbeiros online/disponíveis se necessário
             setBarbers(data);
         } catch (error) {
             console.error(error);
@@ -40,17 +40,20 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
         if (!clientData) return;
         setLoading(true);
         try {
+            // Tenta obter permissão de notificação antes de entrar
+            const fcmToken = await requestNotificationPermission();
+
             const result = await Api.enterQueue({
-                tenant_id: shopInfo.id, // ID real do tenant vindo do shopInfo
+                tenant_id: shopInfo.id,
                 barber_id: selectedBarber?.id,
                 client_name: clientData.name,
                 client_phone: clientData.phone,
                 cpf: clientData.cpf,
-                photo_url: clientData.photo_url
+                photo_url: clientData.photo_url,
+                fcm_token: fcmToken
             });
             setTicket(result);
             setStep('ticket');
-            // Notificar pai se necessário, ou apenas mostrar ticket aqui
         } catch (error) {
             alert('Erro ao entrar na fila. Tente novamente.');
         } finally {
@@ -58,8 +61,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
         }
     }
 
-
-    // Polling for ticket status updates - MUST be at top level (React Hooks Rule)
+    // Polling for ticket status updates
     useEffect(() => {
         if (step !== 'ticket' || !ticket?.id) return;
 
@@ -75,7 +77,6 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
     }, [step, ticket?.id]);
 
     if (step === 'ticket') {
-
         // Tela de "CHEGOU SUA VEZ"
         if (ticket?.status === 'attending') {
             return (
@@ -89,7 +90,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                     </p>
 
                     <button
-                        onClick={onComplete}
+                        onClick={onCancel}
                         className="w-full h-16 bg-slate-800 hover:bg-slate-700 rounded-2xl font-black uppercase tracking-widest transition-all border border-slate-700 text-white"
                     >
                         Voltar ao Início
@@ -99,7 +100,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
             );
         }
 
-        // Tela de "ATENDIMENTO CONCLUÍDO" (Obrigado)
+        // Tela de "ATENDIMENTO CONCLUÍDO"
         if (ticket?.status === 'completed' || ticket?.status === 'finished') {
             return (
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in-95 duration-500">
@@ -223,8 +224,8 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                 {/* Barber Selection Grid */}
                 <div className="grid grid-cols-2 gap-4">
                     <button
-                        onClick={() => setSelectedBarber(null)}
-                        className={`col-span-2 p-4 rounded-xl border flex items-center justify-center transition-all ${!selectedBarber ? 'bg-primary-custom border-primary-custom text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                        onClick={() => setSelectedBarber({ id: null, name: `Qualquer ${texts.professional}`, is_online: true })}
+                        className={`col-span-2 p-3 rounded-xl border flex items-center justify-center transition-all ${!selectedBarber || selectedBarber.id === null ? 'bg-primary-custom border-primary-custom text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                     >
                         <span className="font-bold uppercase text-sm tracking-widest">Qualquer {texts.professional} (Rápido)</span>
                     </button>
@@ -280,19 +281,21 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
 
                             <h3 className="text-2xl font-black text-center text-white uppercase tracking-tight mb-1">{selectedBarber.name}</h3>
                             <p className={`text-xs font-bold text-center uppercase tracking-widest mb-8 ${selectedBarber.is_online ? 'text-emerald-500' : 'text-slate-500'}`}>
-                                {selectedBarber.is_online ? 'Disponível Agora' : 'Indisponível'}
+                                {selectedBarber.id === null ? 'Disponível Agora' : (selectedBarber.is_online ? 'Disponível Agora' : 'Indisponível')}
                             </p>
 
-                            <div className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="bg-slate-950/50 rounded-2xl p-4 text-center border border-slate-800">
-                                    <p className="text-3xl font-black text-white">{selectedBarber.people_waiting || 0}</p>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase">Pessoas na Fila</p>
+                            {selectedBarber.id !== null && (
+                                <div className="grid grid-cols-2 gap-4 mb-8">
+                                    <div className="bg-slate-950/50 rounded-2xl p-4 text-center border border-slate-800">
+                                        <p className="text-3xl font-black text-white">{selectedBarber.people_waiting || 0}</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Pessoas na Fila</p>
+                                    </div>
+                                    <div className="bg-slate-950/50 rounded-2xl p-4 text-center border border-slate-800">
+                                        <p className="text-3xl font-black text-white">{selectedBarber.estimated_wait || 0}<span className="text-sm align-top ml-1">min</span></p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Tempo Estimado</p>
+                                    </div>
                                 </div>
-                                <div className="bg-slate-950/50 rounded-2xl p-4 text-center border border-slate-800">
-                                    <p className="text-3xl font-black text-white">{selectedBarber.estimated_wait || 0}<span className="text-sm align-top ml-1">min</span></p>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase">Tempo Estimado</p>
-                                </div>
-                            </div>
+                            )}
 
                             <button
                                 onClick={handleEnterQueue}

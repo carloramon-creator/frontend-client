@@ -31,6 +31,7 @@ export const Api = {
         cpf?: string;
         photo_url?: string;
         is_priority?: boolean;
+        fcm_token?: string | null;
     }) => {
         const res = await api.post('/api/public/queue/enter', data);
         return res.data;
