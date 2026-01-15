@@ -184,12 +184,9 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                 <div className="grid grid-cols-2 gap-4">
                     <button
                         onClick={() => setSelectedBarber(null)}
-                        className={`flex flex-col items-center justify-center p-4 rounded-3xl border transition-all aspect-square ${!selectedBarber ? 'bg-primary-custom border-primary-custom text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                        className={`col-span-2 p-4 rounded-xl border flex items-center justify-center transition-all ${!selectedBarber ? 'bg-primary-custom border-primary-custom text-white shadow-lg' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                     >
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${!selectedBarber ? 'bg-white/20' : 'bg-slate-800'}`}>
-                            <Users size={32} />
-                        </div>
-                        <p className="font-bold uppercase text-sm text-center">Qualquer<br />{texts.professional}</p>
+                        <span className="font-bold uppercase text-sm tracking-widest">Qualquer {texts.professional} (Rápido)</span>
                     </button>
 
                     {loading ? (
