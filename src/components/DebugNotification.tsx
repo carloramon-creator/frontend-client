@@ -33,7 +33,9 @@ export function DebugNotification() {
         setLoading(true);
         addLog('Enviando requisição ao Backend...');
         try {
-            const res = await fetch('https://api.791barber.com/api/debug/firebase', { // Ajuste para URL real se necessário, mas /api deve funcionar via reverse proxy se estiver no mesmo dominio, ou endpoint completo
+            // Tenta detectar a URL base da API
+            const baseUrl = import.meta.env.VITE_API_URL || 'https://api.791barber.com';
+            const res = await fetch(`${baseUrl}/api/debug/firebase`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token })
