@@ -113,7 +113,7 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                     </p>
 
                     <button
-                        onClick={onComplete}
+                        onClick={onCancel}
                         className="w-full h-16 bg-primary-custom hover:opacity-90 rounded-2xl font-black uppercase tracking-widest transition-all text-white"
                     >
                         Voltar ao Início
