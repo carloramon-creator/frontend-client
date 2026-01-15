@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Api } from '../lib/api';
-import { User, CheckCircle2, ChevronRight, Loader2, Users } from 'lucide-react';
+import { User, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
 import { getBusinessTexts } from '../lib/business-dictionary';
 
 interface QueueWizardProps {
