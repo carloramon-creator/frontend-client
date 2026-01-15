@@ -79,7 +79,7 @@ export const Api = {
 
     /** CANCELAR/SAIR DA FILA (PÚBLICO) */
     cancelQueue: async (ticketId: string) => {
-        const res = await api.delete(`/api/public/queue/${ticketId}`);
+        const res = await api.put(`/api/public/queue/cancel`, { ticketId });
         return res.data;
     }
 };
