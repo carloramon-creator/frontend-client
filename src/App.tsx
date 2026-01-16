@@ -63,13 +63,28 @@ function updateMetadata(tenant: any) {
     // Atualiza nome do web app
     const metaTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
     if (metaTitle) metaTitle.setAttribute('content', tenant.name);
+
+    // Atualiza Manifest Dinâmico
+    const clientId = new URLSearchParams(window.location.search).get('c');
+    const manifestUrl = `https://api.791barber.com/api/public/manifest/${tenant.slug}${clientId ? `?c=${clientId}` : ''}`;
+
+    let manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+    if (manifestLink) {
+        manifestLink.href = manifestUrl;
+    } else {
+        manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestUrl;
+        document.head.appendChild(manifestLink);
+    }
 }
 
 function RootRedirect() {
     useEffect(() => {
         const lastSlug = localStorage.getItem('791_last_slug');
         if (lastSlug) {
-            window.location.replace(`/${lastSlug}`);
+            const search = window.location.search;
+            window.location.replace(`/${lastSlug}${search}`);
         }
     }, []);
 
