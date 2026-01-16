@@ -225,7 +225,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                         </button>
 
                         {barbers
-                            .filter(b => selectedServices.every(s => b.service_ids?.includes(s.id)))
+                            .filter(b => b.is_active !== false && selectedServices.every(s => b.service_ids?.includes(s.id)))
                             .map(b => (
                                 <div
                                     key={b.id}
@@ -241,7 +241,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                                     <ChevronRight className="text-slate-800" size={20} />
                                 </div>
                             ))}
-                        {barbers.filter(b => selectedServices.every(s => b.service_ids?.includes(s.id))).length === 0 && (
+                        {barbers.filter(b => b.is_active !== false && selectedServices.every(s => b.service_ids?.includes(s.id))).length === 0 && (
                             <div className="text-center p-8 text-slate-500 text-sm">
                                 Nenhum {texts.professional.toLowerCase()} disponível para todos os {texts.services.toLowerCase()} selecionados.
                             </div>
