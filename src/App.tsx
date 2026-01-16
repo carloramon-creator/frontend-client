@@ -92,30 +92,42 @@ function ShopPage() {
             setLoading(true);
             setError(false);
 
-            const response = await Api.getShopInfo(slug!);
-            setShopInfo(response.tenant);
-
-            // ATUALIZAÇÃO DE METADADOS (ÍCONES E TÍTULO)
-            updateMetadata(response.tenant);
-
-            // LÓGICA DE DETECÇÃO DE CLIENTE
-            let detectedClient = null;
-            if (clientId) {
-                detectedClient = await Api.identifyClient(clientId, slug!);
-            } else {
-                const cached = localStorage.getItem(`791_${slug}_client_data`);
-                if (cached) detectedClient = JSON.parse(cached);
+            // 1. TENTATIVA INSTANTÂNEA DE CARREGAR CACHE
+            let initialClient = null;
+            const cached = localStorage.getItem(`791_${slug}_client_data`);
+            if (cached) {
+                try {
+                    initialClient = JSON.parse(cached);
+                } catch (e) {
+                    console.error("Erro ao ler cache", e);
+                }
             }
 
+            // 2. DISPARA CHAMADAS EM PARALELO (GANHO DE PERFORMANCE)
+            const shopPromise = Api.getShopInfo(slug!);
+            const clientPromise = clientId
+                ? Api.identifyClient(clientId, slug!)
+                : Promise.resolve(initialClient);
+
+            // Aguarda ambas completarem simultaneamente
+            const [shopResponse, detectedClient] = await Promise.all([
+                shopPromise,
+                clientPromise
+            ]);
+
+            const tenant = shopResponse.tenant;
+            setShopInfo(tenant);
             setClientData(detectedClient);
 
-            // REDIRECIONAMENTO INTELIGENTE
+            // 3. ATUALIZAÇÃO ASSÍNCRONA DE METADADOS
+            updateMetadata(tenant);
+
+            // 4. REDIRECIONAMENTO INTELIGENTE
             if (!detectedClient || !detectedClient.name || !detectedClient.phone || !detectedClient.cpf || !detectedClient.photo_url) {
                 setCurrentFlow('registration');
             } else {
-                // Se a empresa só tem um módulo, vai direto
-                const hasQueue = response.tenant.module_queue_enabled;
-                const hasAppt = response.tenant.module_appointments_enabled;
+                const hasQueue = tenant.module_queue_enabled;
+                const hasAppt = tenant.module_appointments_enabled;
 
                 if (hasQueue && !hasAppt) setCurrentFlow('queue');
                 else if (hasAppt && !hasQueue) setCurrentFlow('appointment');
