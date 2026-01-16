@@ -110,8 +110,8 @@ function ShopPage() {
                 ? Api.identifyClient(clientId, slug!)
                 : Promise.resolve(initialClient);
 
+            const activeTicketId = localStorage.getItem(`791_${slug}_active_ticket`);
             let recoveredTicket = null;
-            let ticketError = false;
 
             if (activeTicketId) {
                 console.log(`[INIT] Tentando recuperar ticket: ${activeTicketId}`);
@@ -122,8 +122,6 @@ function ShopPage() {
                     console.error(`[INIT] Erro ao recuperar ticket:`, e);
                     if (e.response?.status === 404) {
                         localStorage.removeItem(`791_${slug}_active_ticket`);
-                    } else {
-                        ticketError = true; // Provável erro de rede
                     }
                 }
             }
