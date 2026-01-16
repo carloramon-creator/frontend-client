@@ -13,12 +13,24 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+// Inicialização segura para evitar "Black Screen" se as variáveis de ambiente não estiverem prontas
+let app;
+let messaging = null;
 
-// Só inicializa Analytics se estiver no navegador
-if (typeof window !== 'undefined') {
-    getAnalytics(app);
+if (firebaseConfig.apiKey) {
+    try {
+        app = initializeApp(firebaseConfig);
+        messaging = getMessaging(app);
+
+        // Só inicializa Analytics se estiver no navegador
+        if (typeof window !== 'undefined') {
+            getAnalytics(app);
+        }
+    } catch (error) {
+        console.error("Firebase initialization failed:", error);
+    }
+} else {
+    console.warn("Firebase configuration missing. Push notifications will be disabled.");
 }
 
 // Chave pública VAPID (Gerada em Project Settings > Cloud Messaging > Web Push certificates)
@@ -45,8 +57,13 @@ export const requestNotificationPermission = async () => {
                 console.log('[FCM] SW Ready:', registration?.scope || 'NENHUM');
             }
 
-            console.log('[FCM] Chamando getToken com VAPID:', VAPID_KEY.substring(0, 10) + '...');
-            const token = await getToken(messaging, {
+            if (!messaging || !VAPID_KEY) {
+                console.warn('[FCM] Messaging ou VAPID_KEY não inicializados. Abortando geração de token.');
+                return null;
+            }
+
+            console.log('[FCM] Chamando getToken com VAPID:', VAPID_KEY?.substring(0, 10) + '...');
+            const token = await getToken(messaging!, {
                 vapidKey: VAPID_KEY,
                 serviceWorkerRegistration: registration
             });
@@ -69,7 +86,8 @@ export const requestNotificationPermission = async () => {
 
 export const onMessageListener = () =>
     new Promise((resolve) => {
-        onMessage(messaging, (payload) => {
+        if (!messaging) return;
+        onMessage(messaging!, (payload) => {
             resolve(payload);
         });
     });
