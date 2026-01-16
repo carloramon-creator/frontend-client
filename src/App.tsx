@@ -64,6 +64,23 @@ function updateMetadata(tenant: any) {
     if (metaTitle) metaTitle.setAttribute('content', tenant.name);
 }
 
+function RootRedirect() {
+    useEffect(() => {
+        const lastSlug = localStorage.getItem('791_last_slug');
+        if (lastSlug) {
+            window.location.replace(`/${lastSlug}`);
+        }
+    }, []);
+
+    return (
+        <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
+            791 Barber <br />
+            <span className="text-[10px] opacity-50 font-normal">Selecione um estabelecimento pelo link oficial.</span>
+            <a href="/debug-push" className="mt-10 text-[8px] opacity-20 hover:opacity-100 transition-opacity">Sistema de Debug</a>
+        </div>
+    );
+}
+
 // --- PÁGINA PRINCIPAL (ROTEADOR DE FLUXO) ---
 
 function ShopPage() {
@@ -136,6 +153,9 @@ function ShopPage() {
             setShopInfo(tenant);
             setClientData(detectedClient);
             setActiveTicket(recoveredTicket);
+
+            // Save as last visited slug for PWA recovery
+            localStorage.setItem('791_last_slug', slug!);
 
             // 3. ATUALIZAÇÃO ASSÍNCRONA DE METADADOS
             updateMetadata(tenant);
@@ -374,13 +394,7 @@ export default function App() {
             <Routes>
                 <Route path="/debug-push" element={<DebugNotification />} />
                 <Route path="/:slug" element={<ShopPage />} />
-                <Route path="/" element={
-                    <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
-                        791 Barber <br />
-                        <span className="text-[10px] opacity-50 font-normal">Selecione um estabelecimento pelo link oficial.</span>
-                        <a href="/debug-push" className="mt-10 text-[8px] opacity-20 hover:opacity-100 transition-opacity">Sistema de Debug</a>
-                    </div>
-                } />
+                <Route path="/" element={<RootRedirect />} />
                 <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Ops! Caminho não encontrado.</div>} />
             </Routes>
         </BrowserRouter>
