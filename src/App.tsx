@@ -1,3 +1,4 @@
+// --- EMERGENCY ROLLBACK: 16/01/2026 16:05 ---
 import { useState, useEffect } from 'react';
 import { DebugNotification } from './components/DebugNotification';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
