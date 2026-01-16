@@ -8,17 +8,18 @@ interface QueueWizardProps {
     slug: string;
     shopInfo: any;
     clientData: any;
+    initialTicket?: any;
     onCancel: () => void;
     onComplete: () => void;
 }
 
-export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }: QueueWizardProps) {
+export function QueueWizard({ slug, shopInfo, clientData, initialTicket, onCancel, onComplete }: QueueWizardProps) {
     const texts = getBusinessTexts(shopInfo?.business_type);
-    const [step, setStep] = useState<'barber' | 'confirm' | 'ticket'>('barber');
+    const [step, setStep] = useState<'barber' | 'confirm' | 'ticket'>(initialTicket ? 'ticket' : 'barber');
     const [barbers, setBarbers] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedBarber, setSelectedBarber] = useState<any>(null);
-    const [ticket, setTicket] = useState<any>(null);
+    const [ticket, setTicket] = useState<any>(initialTicket || null);
 
     useEffect(() => {
         loadBarbers();
@@ -60,12 +61,14 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
             });
             setTicket(result);
             setStep('ticket');
+            if (result?.id) localStorage.setItem(`791_${slug}_active_ticket`, result.id);
         } catch (error: any) {
             console.error("Erro ao entrar na fila:", error);
 
             // Se o servidor avisar que já está na fila, pegamos o ID e levamos o usuário para o ticket
             if (error.response?.data?.error === 'CLIENT_ALREADY_IN_QUEUE' && error.response?.data?.ticketId) {
                 const existingTicketId = error.response.data.ticketId;
+                localStorage.setItem(`791_${slug}_active_ticket`, existingTicketId);
                 try {
                     const update = await Api.getTicketStatus(existingTicketId);
                     setTicket(update);
@@ -199,7 +202,8 @@ export function QueueWizard({ slug, shopInfo, clientData, onCancel, onComplete }
                             if (confirm('Tem certeza que deseja sair da fila? Você perderá sua posição.')) {
                                 try {
                                     await Api.cancelQueue(ticket.id);
-                                    onComplete();
+                                    localStorage.removeItem(`791_${slug}_active_ticket`);
+                                    onCancel();
                                 } catch (e) {
                                     alert('Erro ao sair da fila. Tente novamente.');
                                 }

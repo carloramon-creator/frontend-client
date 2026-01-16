@@ -79,6 +79,7 @@ function ShopPage() {
     // App States
     const [currentFlow, setCurrentFlow] = useState<'main' | 'registration' | 'queue' | 'appointment' | 'success' | 'my-appointments'>('main');
     const [clientData, setClientData] = useState<any>(null);
+    const [activeTicket, setActiveTicket] = useState<any>(null);
 
     const clientId = searchParams.get('c');
 
@@ -109,7 +110,25 @@ function ShopPage() {
                 ? Api.identifyClient(clientId, slug!)
                 : Promise.resolve(initialClient);
 
-            // Aguarda ambas completarem simultaneamente
+            let recoveredTicket = null;
+            let ticketError = false;
+
+            if (activeTicketId) {
+                console.log(`[INIT] Tentando recuperar ticket: ${activeTicketId}`);
+                try {
+                    recoveredTicket = await Api.getTicketStatus(activeTicketId);
+                    console.log(`[INIT] Ticket recuperado com status: ${recoveredTicket?.status}`);
+                } catch (e: any) {
+                    console.error(`[INIT] Erro ao recuperar ticket:`, e);
+                    if (e.response?.status === 404) {
+                        localStorage.removeItem(`791_${slug}_active_ticket`);
+                    } else {
+                        ticketError = true; // Provável erro de rede
+                    }
+                }
+            }
+
+            // Aguarda outras em paralelo
             const [shopResponse, detectedClient] = await Promise.all([
                 shopPromise,
                 clientPromise
@@ -118,12 +137,15 @@ function ShopPage() {
             const tenant = shopResponse.tenant;
             setShopInfo(tenant);
             setClientData(detectedClient);
+            setActiveTicket(recoveredTicket);
 
             // 3. ATUALIZAÇÃO ASSÍNCRONA DE METADADOS
             updateMetadata(tenant);
 
             // 4. REDIRECIONAMENTO INTELIGENTE
-            if (!detectedClient || !detectedClient.name || !detectedClient.phone || !detectedClient.cpf || !detectedClient.photo_url) {
+            if (recoveredTicket && (recoveredTicket.status === 'waiting' || recoveredTicket.status === 'attending')) {
+                setCurrentFlow('queue');
+            } else if (!detectedClient || !detectedClient.name || !detectedClient.phone || !detectedClient.cpf || !detectedClient.photo_url) {
                 setCurrentFlow('registration');
             } else {
                 const hasQueue = tenant.module_queue_enabled;
@@ -292,8 +314,15 @@ function ShopPage() {
                         slug={slug!}
                         shopInfo={shopInfo}
                         clientData={clientData}
-                        onCancel={() => setCurrentFlow('main')}
-                        onComplete={() => setCurrentFlow('success')}
+                        initialTicket={activeTicket}
+                        onCancel={() => {
+                            setActiveTicket(null);
+                            setCurrentFlow('main');
+                        }}
+                        onComplete={() => {
+                            setActiveTicket(null);
+                            setCurrentFlow('success');
+                        }}
                     />
                 )}
 

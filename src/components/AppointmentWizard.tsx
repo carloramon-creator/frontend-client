@@ -13,6 +13,7 @@ import {
 import { getBusinessTexts } from '../lib/business-dictionary';
 import { format, addDays, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { requestNotificationPermission } from '../lib/firebase-config';
 
 interface AppointmentWizardProps {
     slug: string;
@@ -90,6 +91,14 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
 
         setIsSubmitting(true);
         try {
+            // Tenta obter token fcm antes de agendar
+            let fcmToken = null;
+            try {
+                fcmToken = await requestNotificationPermission();
+            } catch (e) {
+                console.warn("FCM Permission denied or failed", e);
+            }
+
             const duration = selectedServices.reduce((acc, s) => acc + (s.duration_minutes || 30), 0);
             const dateStr = format(selectedDate, 'yyyy-MM-dd');
             const startISO = new Date(`${dateStr}T${selectedTime}:00`).toISOString();
@@ -105,7 +114,8 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
                 start_time: startISO,
                 end_time: endISO,
                 service_ids: selectedServices.map(s => s.id),
-                status: 'scheduled'
+                status: 'scheduled',
+                fcm_token: fcmToken
             });
 
             onComplete();
