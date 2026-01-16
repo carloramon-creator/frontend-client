@@ -3,15 +3,14 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
 
 // DADOS EXTRAÍDOS DIRETAMENTE DO PRINT DO CONSOLE FIREBASE DO USUÁRIO
-// CORREÇÃO: A chave correta contém 'm' em 'XmAj2AZA', não 'n'.
 const firebaseConfig = {
-    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXmAj2AZA",
-    authDomain: "barber-ec79b.firebaseapp.com",
-    projectId: "barber-ec79b",
-    storageBucket: "barber-ec79b.firebasestorage.app",
-    messagingSenderId: "856918849752",
-    appId: "1:856918849752:web:1a1728d277723998df7fad",
-    measurementId: "G-K8LRV3P776"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -23,7 +22,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Chave pública VAPID (Gerada em Project Settings > Cloud Messaging > Web Push certificates)
-const VAPID_KEY = "BJBbVyUmYAsvG7bce5w95onOxpPiWV2uQkPkhH1qhXYbbVBM2swkiC5DNhuKqGJyireNUZARrL1TsugWeJgrB1g";
+const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
 export const requestNotificationPermission = async () => {
     try {

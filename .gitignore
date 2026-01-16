@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Firebase generated config
+public/firebase-config-sw.js
+node_modules
+dist
+.env.local

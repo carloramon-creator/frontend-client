@@ -2,15 +2,11 @@
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
-// CORREÇÃO: A chave correta contém 'm' em 'XmAj2AZA', não 'n'.
-const firebaseConfig = {
-    apiKey: "AIzaSyAY8k2dCjoewStc_vTsTKETMAGXmAj2AZA",
-    authDomain: "barber-ec79b.firebaseapp.com",
-    projectId: "barber-ec79b",
-    storageBucket: "barber-ec79b.firebasestorage.app",
-    messagingSenderId: "856918849752",
-    appId: "1:856918849752:web:1a1728d277723998df7fad"
-};
+// Importa a configuração gerada no build
+importScripts('/firebase-config-sw.js');
+
+// CORREÇÃO: Usando a configuração importada do arquivo gerado
+// (firebaseConfig já está definido no firebase-config-sw.js)
 
 // Inicializa Firebase no Service Worker
 firebase.initializeApp(firebaseConfig);
