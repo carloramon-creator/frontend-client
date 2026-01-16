@@ -9,8 +9,44 @@
   <!-- Meta Tags para iPhone/PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="791 Barber" />
-  <link rel="manifest" href="/manifest.json" />
+  <script>
+    (function () {
+      try {
+        const url = new URL(window.location.href);
+        const pathParts = url.pathname.split('/').filter(Boolean);
+        const slug = pathParts[0];
+        const clientId = url.searchParams.get('c') || url.searchParams.get('clientId');
+
+        if (slug && slug !== 'debug-push' && slug !== 'index.html' && slug !== 'favicon.ico') {
+          // 1. Salva contexto para o app
+          localStorage.setItem('791_last_slug', slug);
+          if (clientId) localStorage.setItem('791_last_client_id', clientId);
+
+          // 2. Injeta Manifest Dinâmico
+          const manifestUrl = 'https://api.791barber.com/api/public/manifest/' + slug + (clientId ? '?c=' + clientId : '');
+          const link = document.createElement('link');
+          link.rel = 'manifest';
+          link.href = manifestUrl;
+          document.head.appendChild(link);
+
+          // 3. Tenta forçar o título para o Safari (pode ajudar no diálogo de share)
+          // Nota: O App.tsx atualizará isso com o nome real do banco depois.
+          const meta = document.createElement('meta');
+          meta.name = 'apple-mobile-web-app-title';
+          meta.content = slug.charAt(0).toUpperCase() + slug.slice(1);
+          document.head.appendChild(meta);
+        } else {
+          // Fallback se não houver slug
+          const link = document.createElement('link');
+          link.rel = 'manifest';
+          link.href = '/manifest.json';
+          document.head.appendChild(link);
+        }
+      } catch (e) {
+        console.error('Metadata injection error', e);
+      }
+    })();
+  </script>
 
   <!-- Ícone Padrão (Fallback) -->
   <link id="favicon" rel="icon" type="image/png" href="/icon-192.png" />

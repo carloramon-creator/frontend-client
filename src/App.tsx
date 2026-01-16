@@ -114,7 +114,7 @@ function ShopPage() {
     const [clientData, setClientData] = useState<any>(null);
     const [activeTicket, setActiveTicket] = useState<any>(null);
 
-    const clientId = searchParams.get('c');
+    const clientId = searchParams.get('c') || searchParams.get('clientId') || localStorage.getItem('791_last_client_id');
 
     useEffect(() => {
         if (!slug) return;
@@ -172,6 +172,9 @@ function ShopPage() {
 
             // Save as last visited slug for PWA recovery
             localStorage.setItem('791_last_slug', slug!);
+            if (detectedClient?.id) {
+                localStorage.setItem('791_last_client_id', detectedClient.id);
+            }
 
             // 3. ATUALIZAÇÃO ASSÍNCRONA DE METADADOS
             updateMetadata(tenant);
