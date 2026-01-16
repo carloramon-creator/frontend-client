@@ -37,7 +37,7 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
     return (
         <div className="flex-1 flex flex-col justify-center p-6 animate-in fade-in duration-500">
             <div className="text-center mb-10">
-                <h2 className="text-2xl font-black uppercase tracking-tighter italic">Quase lá!</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tighter">Quase lá!</h2>
                 <p className="text-slate-500 text-sm font-medium">Complete seu perfil para um atendimento premium.</p>
             </div>
 
@@ -93,7 +93,7 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
 
                 <button
                     disabled={loading}
-                    className="w-full h-16 bg-primary-custom hover:opacity-90 text-white font-black italic uppercase tracking-widest rounded-2xl shadow-xl flex items-center justify-center gap-2"
+                    className="w-full h-16 bg-primary-custom hover:opacity-90 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl flex items-center justify-center gap-2"
                 >
                     {loading ? <Loader2 className="animate-spin" /> : <><Check size={20} /> Concluir Cadastro</>}
                 </button>

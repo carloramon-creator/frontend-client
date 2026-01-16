@@ -353,7 +353,7 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
             <div className="py-4 flex flex-col gap-3 mt-auto">
                 <div className="flex gap-3">
                     {step > 1 && (
-                        <button onClick={() => setStep(step - 1)} className="h-14 flex-1 bg-slate-900 border border-slate-800 text-slate-400 font-black uppercase italic rounded-2xl flex items-center justify-center">
+                        <button onClick={() => setStep(step - 1)} className="h-14 flex-1 bg-slate-900 border border-slate-800 text-slate-400 font-black uppercase rounded-2xl flex items-center justify-center">
                             <ChevronLeft size={20} />
                         </button>
                     )}
