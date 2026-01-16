@@ -168,7 +168,15 @@ function ShopPage() {
             const tenant = shopResponse.tenant;
             setShopInfo(tenant);
             setClientData(detectedClient);
-            setActiveTicket(recoveredTicket);
+
+            // Se o ticket já estiver morto (finalizado/cancelado), limpamos o localstorage e não injetamos no estado
+            if (recoveredTicket && (recoveredTicket.status === 'finished' || recoveredTicket.status === 'completed' || recoveredTicket.status === 'cancelled')) {
+                console.log(`[INIT] Ticket ${recoveredTicket.id} já está finalizado (${recoveredTicket.status}). Limpando cache.`);
+                localStorage.removeItem(`791_${slug}_active_ticket`);
+                setActiveTicket(null);
+            } else {
+                setActiveTicket(recoveredTicket);
+            }
 
             // Save as last visited slug for PWA recovery
             localStorage.setItem('791_last_slug', slug!);
@@ -353,10 +361,12 @@ function ShopPage() {
                         clientData={clientData}
                         initialTicket={activeTicket}
                         onCancel={() => {
+                            localStorage.removeItem(`791_${slug}_active_ticket`);
                             setActiveTicket(null);
                             setCurrentFlow('main');
                         }}
                         onComplete={() => {
+                            localStorage.removeItem(`791_${slug}_active_ticket`);
                             setActiveTicket(null);
                             setCurrentFlow('success');
                         }}
