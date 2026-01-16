@@ -17,6 +17,21 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
         photo_url: initialData?.photo_url || ''
     });
 
+    const handlePhotoClick = () => {
+        document.getElementById('photo-input')?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, photo_url: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
@@ -81,7 +96,17 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
                 </div>
 
                 <div className="flex flex-col items-center gap-4 py-4">
-                    <div className="w-24 h-24 bg-slate-900 rounded-full border-2 border-dashed border-slate-800 flex items-center justify-center relative overflow-hidden group">
+                    <input
+                        type="file"
+                        id="photo-input"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                    />
+                    <div
+                        onClick={handlePhotoClick}
+                        className="w-24 h-24 bg-slate-900 rounded-full border-2 border-dashed border-slate-800 flex items-center justify-center relative overflow-hidden group cursor-pointer hover:border-primary-custom transition-colors"
+                    >
                         {formData.photo_url ? (
                             <img src={formData.photo_url} className="w-full h-full object-cover" />
                         ) : (
