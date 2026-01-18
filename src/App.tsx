@@ -11,6 +11,9 @@ import { RegistrationForm } from './components/RegistrationForm';
 import { MyAppointments } from './components/MyAppointments';
 import { getBusinessTexts } from './lib/business-dictionary';
 import { getBusinessTheme } from './lib/business-theme';
+import { AddToHomeScreen } from './components/AddToHomeScreen';
+import { onMessageListener } from './lib/firebase-config';
+import { InAppNotification, type NotificationPayload } from './components/InAppNotification';
 
 // --- COMPONENTES AUXILIARES ---
 
@@ -237,6 +240,27 @@ function ShopPage() {
     if (loading) return <LoadingScreen />;
     if (error) return <ErrorScreen slug={slug || ''} />;
 
+    // NOTIFICATIONS
+    const [notification, setNotification] = useState<NotificationPayload | null>(null);
+
+    useEffect(() => {
+        const listen = async () => {
+            try {
+                const payload: any = await onMessageListener();
+                console.log("[App] Received foreground message:", payload);
+                if (payload?.notification) {
+                    setNotification({
+                        title: payload.notification.title,
+                        body: payload.notification.body
+                    });
+                }
+            } catch (err) {
+                console.error("[App] Error listening for messages:", err);
+            }
+        };
+        listen();
+    }, []);
+
     return (
         <main className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full relative overflow-hidden min-h-screen">
             {/* INJEÇÃO DE CORES DINÂMICAS */}
@@ -411,6 +435,10 @@ function ShopPage() {
             <footer className="mt-auto pt-10 pb-4 text-center">
                 <p className="text-[9px] text-slate-700 font-black uppercase tracking-[0.4em]">Powered by 791 Solutions</p>
             </footer>
+
+
+            <AddToHomeScreen />
+            <InAppNotification notification={notification} onClose={() => setNotification(null)} />
         </main>
     );
 }
