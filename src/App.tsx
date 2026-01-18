@@ -261,26 +261,7 @@ function ShopPage() {
     if (loading) return <LoadingScreen />;
     if (error) return <ErrorScreen slug={slug || ''} />;
 
-    // NOTIFICATIONS
-    const [notification, setNotification] = useState<NotificationPayload | null>(null);
 
-    useEffect(() => {
-        const listen = async () => {
-            try {
-                const payload: any = await onMessageListener();
-                console.log("[App] Received foreground message:", payload);
-                if (payload?.notification) {
-                    setNotification({
-                        title: payload.notification.title,
-                        body: payload.notification.body
-                    });
-                }
-            } catch (err) {
-                console.error("[App] Error listening for messages:", err);
-            }
-        };
-        listen();
-    }, []);
 
     return (
         <main className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full relative overflow-hidden min-h-screen">
