@@ -119,6 +119,27 @@ function ShopPage() {
 
     const clientId = searchParams.get('c') || searchParams.get('clientId') || localStorage.getItem('791_last_client_id');
 
+    // NOTIFICATIONS
+    const [notification, setNotification] = useState<NotificationPayload | null>(null);
+
+    useEffect(() => {
+        const listen = async () => {
+            try {
+                const payload: any = await onMessageListener();
+                console.log("[App] Received foreground message:", payload);
+                if (payload?.notification) {
+                    setNotification({
+                        title: payload.notification.title,
+                        body: payload.notification.body
+                    });
+                }
+            } catch (err) {
+                console.error("[App] Error listening for messages:", err);
+            }
+        };
+        listen();
+    }, []);
+
     useEffect(() => {
         if (!slug) return;
         init();
