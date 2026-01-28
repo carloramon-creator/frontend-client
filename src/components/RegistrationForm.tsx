@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { User, Phone, FileText, Camera, Loader2, Check } from 'lucide-react';
+import { supabaseClient } from '../lib/supabase-client';
 
 interface RegistrationFormProps {
     slug: string;
@@ -10,6 +11,7 @@ interface RegistrationFormProps {
 
 export function RegistrationForm({ slug, clientId, initialData, onComplete }: RegistrationFormProps) {
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
         phone: initialData?.phone || '',
@@ -17,18 +19,57 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
         photo_url: initialData?.photo_url || ''
     });
 
+    const maskPhone = (value: string) => {
+        const clean = value.replace(/\D/g, '');
+        if (clean.length <= 10) {
+            return clean.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').trim();
+        }
+        return clean.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').trim();
+    };
+
+    const maskCPF = (value: string) => {
+        const clean = value.replace(/\D/g, '');
+        return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4').replace(/\.-$/, '').replace(/-$/, '').trim();
+    };
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, phone: maskPhone(e.target.value) });
+    };
+
+    const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, cpf: maskCPF(e.target.value) });
+    };
+
     const handlePhotoClick = () => {
         document.getElementById('photo-input')?.click();
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, photo_url: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        try {
+            setUploading(true);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `client-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabaseClient.storage
+                .from('logos') // Reusing 'logos' bucket as it's public
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabaseClient.storage
+                .from('logos')
+                .getPublicUrl(filePath);
+
+            setFormData(prev => ({ ...prev, photo_url: data.publicUrl }));
+        } catch (err: any) {
+            console.error('Error uploading photo:', err);
+            alert('Erro ao carregar foto: ' + err.message);
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -36,8 +77,8 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
         e.preventDefault();
         setLoading(true);
         try {
-            // Lógica de registro/atualização aqui
-            // Por enquanto, apenas simulamos e guardamos no local
+            // Remove as máscaras antes de enviar/salvar se necessário, ou mantém se o sistema aceita formatado
+            // O usuário pediu "como está no sistema: xxx.xxx.xxx-xx e (xx) xxxxx-xxxx", então manteremos formatado.
             const completeData = { ...formData, id: clientId || 'new-' + Date.now() };
             localStorage.setItem(`791_${slug}_client_data`, JSON.stringify(completeData));
             onComplete(completeData);
@@ -77,7 +118,8 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
                             type="tel"
                             placeholder="Telefone / WhatsApp"
                             value={formData.phone}
-                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                            onChange={handlePhoneChange}
+                            maxLength={15}
                             className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
                         />
                     </div>
@@ -89,7 +131,8 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
                             type="text"
                             placeholder="CPF (Para notas fiscais)"
                             value={formData.cpf}
-                            onChange={e => setFormData({ ...formData, cpf: e.target.value })}
+                            onChange={handleCPFChange}
+                            maxLength={14}
                             className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
                         />
                     </div>
@@ -111,6 +154,11 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
                             <img src={formData.photo_url} className="w-full h-full object-cover" />
                         ) : (
                             <Camera className="text-slate-700 group-hover:text-primary-custom transition-colors" size={32} />
+                        )}
+                        {uploading && (
+                            <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center">
+                                <Loader2 className="w-6 h-6 text-primary-custom animate-spin" />
+                            </div>
                         )}
                     </div>
                     <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest">Sua Foto de Perfil</p>
