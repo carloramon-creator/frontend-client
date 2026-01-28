@@ -1,5 +1,6 @@
 // --- EMERGENCY ROLLBACK: 16/01/2026 16:05 ---
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Component } from 'react';
+import { AlertTriangle as AlertTitle } from 'lucide-react';
 import { DebugNotification } from './components/DebugNotification';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import { Api } from './lib/api';
@@ -16,6 +17,56 @@ import { onMessageListener } from './lib/firebase-config';
 import { InAppNotification, type NotificationPayload } from './components/InAppNotification';
 
 // --- COMPONENTES AUXILIARES ---
+
+class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error: any) {
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error: any, errorInfo: any) {
+        console.error("ErrorBoundary caught an error:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+                        <AlertTitle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <h1 className="text-xl font-bold mb-2 text-white">Ops! Algo deu errado.</h1>
+                    <p className="text-slate-400 max-w-xs mb-6 text-sm">
+                        Ocorreu um erro inesperado no aplicativo.
+                    </p>
+                    <div className="bg-slate-900 p-4 rounded-lg border border-slate-800 w-full max-w-xs mb-6 overflow-hidden">
+                        <code className="text-[10px] text-red-400 font-mono break-all line-clamp-4">
+                            {this.state.error?.message || 'Erro desconhecido'}
+                        </code>
+                    </div>
+                    <button
+                        onClick={() => {
+                            localStorage.clear();
+                            window.location.reload();
+                        }}
+                        className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold transition-all text-sm"
+                    >
+                        Tentar Novamente
+                    </button>
+                    <p className="mt-8 text-[10px] text-slate-600 uppercase tracking-widest">
+                        Se persistir, contate o suporte.
+                    </p>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
 
 function LoadingScreen() {
     return (
@@ -138,6 +189,20 @@ function ShopPage() {
             }
         };
         listen();
+
+        // Safety Timeout to prevent infinite loading
+        const safetyTimer = setTimeout(() => {
+            setLoading((prev) => {
+                if (prev) {
+                    console.error("[INIT] Timeout de segurança atingido (15s). Forçando erro.");
+                    setError(true);
+                    return false;
+                }
+                return prev;
+            });
+        }, 15000);
+
+        return () => clearTimeout(safetyTimer);
     }, []);
 
     useEffect(() => {
@@ -452,7 +517,11 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/debug-push" element={<DebugNotification />} />
-                <Route path="/:slug" element={<ShopPage />} />
+                <Route path="/:slug" element={
+                    <ErrorBoundary>
+                        <ShopPage />
+                    </ErrorBoundary>
+                } />
                 <Route path="/" element={<RootRedirect />} />
                 <Route path="*" element={<div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-slate-600 font-black uppercase tracking-widest text-xs">Ops! Caminho não encontrado.</div>} />
             </Routes>
