@@ -21,23 +21,30 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
 
     const maskPhone = (value: string) => {
         const clean = value.replace(/\D/g, '');
-        if (clean.length <= 10) {
-            return clean.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').trim();
-        }
-        return clean.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').trim();
+        if (clean.length === 0) return '';
+        if (clean.length <= 2) return `(${clean}`;
+        if (clean.length <= 6) return `(${clean.slice(0, 2)}) ${clean.slice(2)}`;
+        if (clean.length <= 10) return `(${clean.slice(0, 2)}) ${clean.slice(2, 6)}-${clean.slice(6)}`;
+        return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7, 11)}`;
     };
 
     const maskCPF = (value: string) => {
         const clean = value.replace(/\D/g, '');
-        return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4').replace(/\.-$/, '').replace(/-$/, '').trim();
+        if (clean.length === 0) return '';
+        if (clean.length <= 3) return clean;
+        if (clean.length <= 6) return `${clean.slice(0, 3)}.${clean.slice(3)}`;
+        if (clean.length <= 9) return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6)}`;
+        return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9, 11)}`;
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, phone: maskPhone(e.target.value) });
+        const masked = maskPhone(e.target.value);
+        setFormData({ ...formData, phone: masked });
     };
 
     const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, cpf: maskCPF(e.target.value) });
+        const masked = maskCPF(e.target.value);
+        setFormData({ ...formData, cpf: masked });
     };
 
     const handlePhotoClick = () => {
