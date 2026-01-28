@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'https://api.791barber.com';
+const BACKEND_URL = 'https://791-barbershop-production.up.railway.app';
 
 const api = axios.create({
     baseURL: BACKEND_URL,
