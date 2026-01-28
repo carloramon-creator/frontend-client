@@ -38,7 +38,10 @@ export function QueueWizard({ slug, shopInfo, clientData, initialTicket, onCance
     }
 
     async function handleEnterQueue() {
-        if (!clientData) return;
+        if (!clientData || !shopInfo?.id) {
+            alert('Erro de identificação. Recarregue a página.');
+            return;
+        }
         setLoading(true);
         try {
             // Tenta obter permissão de notificação antes de entrar, mas NÃO trava se falhar
