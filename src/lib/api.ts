@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'https://791-barbershop-production.up.railway.app';
+// Backend URL - Updated to use the consolidated production backend
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.NEXT_PUBLIC_BACKEND_URL || 'https://791barber.com';
 
 const api = axios.create({
     baseURL: BACKEND_URL,
