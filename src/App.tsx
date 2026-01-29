@@ -266,6 +266,19 @@ function ShopPage() {
             setShopInfo(tenant);
             setClientData(detectedClient);
 
+            // 5. DETECT BIRTHDAY (IN-APP NOTIFICATION)
+            if (detectedClient?.is_birthday && detectedClient?.birthday_voucher) {
+                const voucher = detectedClient.birthday_voucher;
+                const discount = voucher.discount_type === 'percentage' ? `${voucher.discount_value}%` : `R$ ${voucher.discount_value}`;
+
+                setTimeout(() => {
+                    setNotification({
+                        title: `FELIZ ANIVERSÁRIO! 🎂🎁`,
+                        body: `Parabéns pelos seu dia! Hoje você ganhou ${discount} de presente em qualquer serviço. Use o cupom: ${voucher.code}`
+                    });
+                }, 1500);
+            }
+
             // Se o ticket já estiver morto (finalizado/cancelado), limpamos o localstorage e não injetamos no estado
             if (recoveredTicket && (recoveredTicket.status === 'finished' || recoveredTicket.status === 'completed' || recoveredTicket.status === 'cancelled')) {
                 console.log(`[INIT] Ticket ${recoveredTicket.id} já está finalizado (${recoveredTicket.status}). Limpando cache.`);
