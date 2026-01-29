@@ -228,8 +228,13 @@ function ShopPage() {
 
             // 2. DISPARA CHAMADAS EM PARALELO (GANHO DE PERFORMANCE)
             const shopPromise = Api.getShopInfo(slug!);
+
+            // Tentativa de identificar cliente com tratamento de erro
             const clientPromise = clientId
-                ? Api.identifyClient(clientId, slug!)
+                ? Api.identifyClient(clientId, slug!).catch((err) => {
+                    console.warn('[INIT] Falha ao identificar cliente:', err.message);
+                    return initialClient; // Fallback para cache se falhar
+                })
                 : Promise.resolve(initialClient);
 
             const activeTicketId = localStorage.getItem(`791_${slug}_active_ticket`);
