@@ -38,8 +38,14 @@ export function QueueWizard({ slug, shopInfo, clientData, initialTicket, onCance
     }
 
     async function handleEnterQueue() {
-        if (!clientData || !shopInfo?.id) {
-            alert('Erro de identificação. Recarregue a página.');
+        console.log("[QueueWizard] Entrando na fila. ShopInfo:", shopInfo);
+        console.log("[QueueWizard] ClientData:", clientData);
+
+        if (!clientData?.name || !shopInfo?.id) {
+            if (confirm('Sua identificação está incompleta. Deseja reiniciar o aplicativo para corrigir?')) {
+                localStorage.clear();
+                window.location.reload();
+            }
             return;
         }
         setLoading(true);

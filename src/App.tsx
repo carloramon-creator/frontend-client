@@ -168,7 +168,7 @@ function ShopPage() {
     const [clientData, setClientData] = useState<any>(null);
     const [activeTicket, setActiveTicket] = useState<any>(null);
 
-    const clientId = searchParams.get('c') || searchParams.get('clientId') || localStorage.getItem('791_last_client_id');
+    const clientId = searchParams.get('c') || searchParams.get('clientId') || localStorage.getItem(`791_${slug}_client_id`);
 
     // NOTIFICATIONS
     const [notification, setNotification] = useState<NotificationPayload | null>(null);
@@ -260,6 +260,9 @@ function ShopPage() {
             ]);
 
             const tenant = shopResponse.tenant;
+            console.log("[INIT] Shop Info:", tenant);
+            console.log("[INIT] Client Data:", detectedClient);
+
             setShopInfo(tenant);
             setClientData(detectedClient);
 
@@ -275,7 +278,7 @@ function ShopPage() {
             // Save as last visited slug for PWA recovery
             localStorage.setItem('791_last_slug', slug!);
             if (detectedClient?.id) {
-                localStorage.setItem('791_last_client_id', detectedClient.id);
+                localStorage.setItem(`791_${slug}_client_id`, detectedClient.id);
             }
 
             // 3. ATUALIZAÇÃO ASSÍNCRONA DE METADADOS
@@ -297,6 +300,8 @@ function ShopPage() {
 
         } catch (e) {
             console.error("[INIT_ERROR]", e);
+            // Se falhar drasticamente, tentamos limpar apenas o crítico antes de desistir
+            localStorage.removeItem(`791_${slug}_client_data`);
             setError(true);
         } finally {
             setLoading(false);
@@ -359,6 +364,12 @@ function ShopPage() {
                     </div>
                     <h1 className="text-4xl font-black tracking-tighter uppercase leading-none mb-3">{shopInfo?.name}</h1>
                     <p className="text-primary-custom font-bold text-xs tracking-[0.5em] uppercase">Experience Excellence</p>
+                    <button
+                        onClick={() => { if (confirm('Deseja limpar o cache e recarregar?')) { localStorage.clear(); window.location.reload(); } }}
+                        className="mt-2 text-[8px] text-slate-800 uppercase tracking-widest hover:text-slate-600 transition-colors"
+                    >
+                        Versão 2.1.2 • Toque para resetar
+                    </button>
                 </div>
 
                 {currentFlow === 'registration' && (
