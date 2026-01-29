@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { User, Phone, FileText, Camera, Loader2, Check } from 'lucide-react';
 import { supabaseClient } from '../lib/supabase-client';
+import { maskPhone, maskCPF } from '../lib/masks';
 
 interface RegistrationFormProps {
     slug: string;
@@ -14,28 +15,10 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
     const [uploading, setUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
-        phone: initialData?.phone || '',
-        cpf: initialData?.cpf || '',
+        phone: initialData?.phone ? maskPhone(initialData.phone) : '',
+        cpf: initialData?.cpf ? maskCPF(initialData.cpf) : '',
         photo_url: initialData?.photo_url || ''
     });
-
-    const maskPhone = (value: string) => {
-        const clean = value.replace(/\D/g, '');
-        if (clean.length === 0) return '';
-        if (clean.length <= 2) return `(${clean}`;
-        if (clean.length <= 6) return `(${clean.slice(0, 2)}) ${clean.slice(2)}`;
-        if (clean.length <= 10) return `(${clean.slice(0, 2)}) ${clean.slice(2, 6)}-${clean.slice(6)}`;
-        return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7, 11)}`;
-    };
-
-    const maskCPF = (value: string) => {
-        const clean = value.replace(/\D/g, '');
-        if (clean.length === 0) return '';
-        if (clean.length <= 3) return clean;
-        if (clean.length <= 6) return `${clean.slice(0, 3)}.${clean.slice(3)}`;
-        if (clean.length <= 9) return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6)}`;
-        return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9, 11)}`;
-    };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const masked = maskPhone(e.target.value);
