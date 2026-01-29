@@ -38,16 +38,17 @@ export function QueueWizard({ slug, shopInfo, clientData, initialTicket, onCance
     }
 
     async function handleEnterQueue() {
-        console.log("[QueueWizard] Entrando na fila. ShopInfo:", shopInfo);
+        console.log("[QueueWizard] Entrando na fila. Slug:", slug);
         console.log("[QueueWizard] ClientData:", clientData);
 
-        if (!clientData?.name || !shopInfo?.id) {
+        if (!clientData?.name) {
             if (confirm('Sua identificação está incompleta. Deseja reiniciar o aplicativo para corrigir?')) {
                 localStorage.clear();
                 window.location.reload();
             }
             return;
         }
+
         setLoading(true);
         try {
             // Tenta obter permissão de notificação antes de entrar, mas NÃO trava se falhar
@@ -60,7 +61,7 @@ export function QueueWizard({ slug, shopInfo, clientData, initialTicket, onCance
             }
 
             const result = await Api.enterQueue({
-                tenant_id: shopInfo.id,
+                tenant_id: shopInfo?.id || slug,
                 barber_id: selectedBarber?.id,
                 client_name: clientData.name,
                 client_phone: clientData.phone,
