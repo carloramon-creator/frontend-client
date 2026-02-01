@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Phone, FileText, Camera, Loader2, Check } from 'lucide-react';
+import { User, Phone, FileText, Camera, Loader2, Check, Calendar } from 'lucide-react';
 import { supabaseClient } from '../lib/supabase-client';
 import { maskPhone, maskCPF } from '../lib/masks';
 
@@ -17,6 +17,7 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
         name: initialData?.name || '',
         phone: initialData?.phone ? maskPhone(initialData.phone) : '',
         cpf: initialData?.cpf ? maskCPF(initialData.cpf) : '',
+        birth_date: initialData?.birth_date || '',
         photo_url: initialData?.photo_url || ''
     });
 
@@ -28,6 +29,19 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
     const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const masked = maskCPF(e.target.value);
         setFormData({ ...formData, cpf: masked });
+    };
+
+    const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 8) value = value.slice(0, 8);
+
+        if (value.length > 4) {
+            value = `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
+        } else if (value.length > 2) {
+            value = `${value.slice(0, 2)}/${value.slice(2)}`;
+        }
+
+        setFormData({ ...formData, birth_date: value });
     };
 
     const handlePhotoClick = () => {
@@ -123,6 +137,19 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
                             value={formData.cpf}
                             onChange={handleCPFChange}
                             maxLength={14}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
+                        />
+                    </div>
+
+                    <div className="relative group">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-custom transition-colors" size={20} />
+                        <input
+                            required
+                            type="text"
+                            placeholder="Data de Nascimento (DD/MM/AAAA)"
+                            value={formData.birth_date}
+                            onChange={handleBirthDateChange}
+                            maxLength={10}
                             className="w-full bg-slate-900 border border-slate-800 rounded-2xl h-14 pl-12 focus:border-primary-custom outline-none transition-all font-bold"
                         />
                     </div>
