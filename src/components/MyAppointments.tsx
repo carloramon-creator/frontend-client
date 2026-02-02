@@ -25,7 +25,13 @@ export function MyAppointments({ slug, clientData, onBack }: MyAppointmentsProps
         try {
             setLoading(true);
             const data = await Api.getMyAppointments(clientData.phone, slug);
-            setAppointments(data || []);
+            // Mostrar apenas agendamentos pendentes (não concluídos e não cancelados)
+            const pending = (data || []).filter((a: any) =>
+                a.status !== 'completed' &&
+                a.status !== 'finished' &&
+                a.status !== 'cancelled'
+            );
+            setAppointments(pending);
         } catch (error) {
             console.error(error);
         } finally {
