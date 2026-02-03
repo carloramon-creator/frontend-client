@@ -80,7 +80,21 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
             const duration = selectedServices.reduce((acc, s) => acc + (s.duration_minutes || 30), 0);
             const dateStr = format(selectedDate, 'yyyy-MM-dd');
             const slots = await Api.getAvailability(dateStr, selectedBarber.id, duration, slug);
-            setAvailableSlots(slots || []);
+
+            // Filter out past time slots if selected date is today
+            const now = new Date();
+            const isToday = format(selectedDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
+
+            const filteredSlots = isToday
+                ? (slots || []).filter((slot: string) => {
+                    const [hours, minutes] = slot.split(':').map(Number);
+                    const slotTime = new Date(selectedDate);
+                    slotTime.setHours(hours, minutes, 0, 0);
+                    return slotTime > now;
+                })
+                : (slots || []);
+
+            setAvailableSlots(filteredSlots);
         } catch (err) {
             console.error(err);
         }
