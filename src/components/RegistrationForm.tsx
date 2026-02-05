@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { User, Phone, FileText, Camera, Loader2, Check, Calendar } from 'lucide-react';
 import { supabaseClient } from '../lib/supabase-client';
-import { maskPhone, maskCPF } from '../lib/masks';
+import { maskPhone, maskCPF, normalizePhone } from '../lib/masks';
 
 interface RegistrationFormProps {
     slug: string;
@@ -81,9 +81,15 @@ export function RegistrationForm({ slug, clientId, initialData, onComplete }: Re
         e.preventDefault();
         setLoading(true);
         try {
-            // Remove as máscaras antes de enviar/salvar se necessário, ou mantém se o sistema aceita formatado
-            // O usuário pediu "como está no sistema: xxx.xxx.xxx-xx e (xx) xxxxx-xxxx", então manteremos formatado.
-            const completeData = { ...formData, id: clientId || 'new-' + Date.now() };
+            // Normaliza o telefone para E.164 (55...) para garantir reconhecimento único
+            const normalizedPhone = normalizePhone(formData.phone);
+
+            const completeData = {
+                ...formData,
+                phone: normalizedPhone,
+                id: clientId || 'new-' + Date.now()
+            };
+
             localStorage.setItem(`791_${slug}_client_data`, JSON.stringify(completeData));
             onComplete(completeData);
         } catch (e) {

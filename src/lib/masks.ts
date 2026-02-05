@@ -25,3 +25,20 @@ export const maskCPF = (value: string | undefined | null) => {
 export const unmask = (value: string) => {
     return value.replace(/\D/g, '');
 };
+
+/**
+ * Normaliza o telefone para o formato E.164 (apenas números).
+ * Heurística:
+ * - Se tiver 10 ou 11 dígitos, assume Brasil e adiciona 55.
+ * - Caso contrário, mantém o que foi digitado (internacional).
+ */
+export const normalizePhone = (value: string | undefined | null) => {
+    if (!value) return '';
+    const clean = value.replace(/\D/g, '');
+
+    if (clean.length === 10 || clean.length === 11) {
+        return `55${clean}`;
+    }
+
+    return clean;
+};
