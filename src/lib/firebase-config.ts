@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getToken, onMessage } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
 
 // DADOS EXTRAÍDOS DIRETAMENTE DO PRINT DO CONSOLE FIREBASE DO USUÁRIO
