@@ -13,29 +13,46 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Inicialização segura para evitar "Black Screen" se as variáveis de ambiente não estiverem prontas
-let app;
-let messaging = null;
+// Inicialização segura para minimizar "Black Screen" e erros de navegador sem suporte
+let app: any;
+let messaging: any = null;
 
-if (firebaseConfig.apiKey) {
+// Função para inicializar o Firebase de forma assíncrona e segura
+async function initFirebase() {
+    if (!firebaseConfig.apiKey) {
+        console.warn("Firebase configuration missing. Push notifications will be disabled.");
+        return;
+    }
+
     try {
         app = initializeApp(firebaseConfig);
 
-        // Tenta inicializar Messaging de forma segura
         if (typeof window !== 'undefined') {
+            // Inicializa Analytics se disponível
             try {
-                messaging = getMessaging(app);
-            } catch (msgError) {
-                console.warn("Firebase Messaging not supported/failed:", msgError);
+                getAnalytics(app);
+            } catch (e) {
+                console.warn("Analytics not supported", e);
             }
-            getAnalytics(app);
+
+            // Verifica suporte para Messaging (Push) antes de tentar instanciar
+            const { isSupported, getMessaging } = await import('firebase/messaging');
+            const supported = await isSupported();
+
+            if (supported) {
+                messaging = getMessaging(app);
+                console.log("[FCM] Messaging inicializado com sucesso.");
+            } else {
+                console.warn("[FCM] Este navegador não suporta as APIs necessárias para Push.");
+            }
         }
     } catch (error) {
         console.error("Firebase initialization failed:", error);
     }
-} else {
-    console.warn("Firebase configuration missing. Push notifications will be disabled.");
 }
+
+// Dispara a inicialização (não bloqueante)
+initFirebase();
 
 // Chave pública VAPID (Gerada em Project Settings > Cloud Messaging > Web Push certificates)
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY;
