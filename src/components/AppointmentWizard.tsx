@@ -86,8 +86,13 @@ export function AppointmentWizard({ slug, clientData, hasPendingAppointments, on
             const isToday = format(selectedDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
 
             const filteredSlots = isToday
-                ? (slots || []).filter((slot: string) => {
-                    const [hours, minutes] = slot.split(':').map(Number);
+                ? (slots || []).filter((slot: any) => {
+                    // O backend agora retorna objetos { time: 'HH:mm', status: ... }
+                    // Mas verificamos se é string por compatibilidade
+                    const timeStr = typeof slot === 'string' ? slot : slot.time;
+                    if (!timeStr) return false;
+
+                    const [hours, minutes] = timeStr.split(':').map(Number);
                     const slotTime = new Date(selectedDate);
                     slotTime.setHours(hours, minutes, 0, 0);
                     return slotTime > now;

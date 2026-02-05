@@ -20,10 +20,14 @@ let messaging = null;
 if (firebaseConfig.apiKey) {
     try {
         app = initializeApp(firebaseConfig);
-        messaging = getMessaging(app);
 
-        // Só inicializa Analytics se estiver no navegador
+        // Tenta inicializar Messaging de forma segura
         if (typeof window !== 'undefined') {
+            try {
+                messaging = getMessaging(app);
+            } catch (msgError) {
+                console.warn("Firebase Messaging not supported/failed:", msgError);
+            }
             getAnalytics(app);
         }
     } catch (error) {
